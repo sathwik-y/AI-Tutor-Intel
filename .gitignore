@@ -1,0 +1,8 @@
+.env
+__pycache__
+qwen2.5-optimized/
+ov_llama3.1-8b-int8/
+OpenVinoLlama.ipynb
+benchmark.py
+main.py
+OpenVino.ipynb
