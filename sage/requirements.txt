@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+faster-whisper
+transformers
+optimum[openvino]
+sentence-transformers
+faiss-cpu
+pytesseract
+matplotlib
+Pillow
+python-multipart
+PyPDF2
