@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>🎤 SAGE Real-Time STT Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        #startBtn {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        #stopBtn {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        #status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        
+        .recording {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+        
+        .connected {
+            background-color: #e8f5e8;
+            color: #2e7d32;
+        }
+        
+        .error {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+        
+        #transcript, #llmResponse {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            min-height: 100px;
+            background-color: #f9f9f9;
+        }
+        
+        #llmResponse {
+            background-color: #e3f2fd;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎤 SAGE Real-Time STT Demo</h1>
+    
+    <div>
+        <button id="startBtn" onclick="startRecording()">Start Recording</button>
+        <button id="stopBtn" onclick="stopRecording()" disabled>Stop Recording</button>
+    </div>
+    
+    <div id="status">Ready to connect...</div>
+    
+    <h3>Live Transcript:</h3>
+    <div id="transcript">Transcript will appear here...</div>
+    
+    <h3>LLM Response:</h3>
+    <div id="llmResponse">LLM response will appear here...</div>
+
+    <script>
+        let socket = null;
+        let mediaRecorder = null;
+        let stream = null;
+        let isRecording = false;
+
+        function updateStatus(message, className = '') {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = className;
+        }
+
+        function updateTranscript(text) {
+            document.getElementById('transcript').textContent = text;
+        }
+
+        function updateLLMResponse(text) {
+            document.getElementById('llmResponse').textContent = text;
+        }
+
+        function connectWebSocket() {
+            socket = new WebSocket("ws://localhost:8000/ws/transcribe");
+            
+            socket.onopen = () => {
+                updateStatus("Connected to server", "connected");
+                console.log("WebSocket connected");
+            };
+
+            socket.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    console.log("Received:", data.type, data);
+                    
+                    switch (data.type) {
+                        case 'chunk_received':
+                            updateStatus(`Recording... (${data.chunk_count} chunks received)`, "recording");
+                            break;
+                        case 'processing':
+                            updateStatus(data.message, "");
+                            updateTranscript("Processing your audio...");
+                            break;
+                        case 'final_transcript':
+                            updateTranscript(data.text);
+                            updateStatus("Transcript ready, generating response...", "");
+                            break;
+                        case 'generating':
+                            updateStatus(data.message, "");
+                            break;
+                        case 'llm_response':
+                            updateLLMResponse(data.text);
+                            updateStatus("Complete!", "connected");
+                            break;
+                        case 'error':
+                            updateStatus(`Error: ${data.message}`, "error");
+                            updateTranscript(`Error: ${data.message}`);
+                            console.error("Server error:", data.message);
+                            break;
+                        default:
+                            console.log("Unknown message type:", data.type);
+                    }
+                } catch (e) {
+                    console.error("Failed to parse message:", event.data, e);
+                }
+            };
+
+            socket.onerror = (error) => {
+                updateStatus("WebSocket error", "error");
+                console.error("WebSocket error:", error);
+            };
+
+            socket.onclose = (event) => {
+                console.log("WebSocket closed:", event.code, event.reason);
+                
+                if (isRecording) {
+                    updateStatus("Processing your recording...", "");
+                } else {
+                    updateStatus("Connection closed", "");
+                }
+                
+                // Reset buttons
+                document.getElementById('startBtn').disabled = false;
+                document.getElementById('stopBtn').disabled = true;
+                isRecording = false;
+            };
+        }
+
+        async function startRecording() {
+            try {
+                // Connect WebSocket first
+                connectWebSocket();
+                
+                // Wait a moment for connection
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                // Get microphone access
+                stream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: {
+                        sampleRate: 16000,
+                        channelCount: 1,
+                        echoCancellation: true,
+                        noiseSuppression: true
+                    } 
+                });
+                
+                // Create MediaRecorder with appropriate format
+                mediaRecorder = new MediaRecorder(stream, {
+                    mimeType: 'audio/webm;codecs=opus'
+                });
+                
+                mediaRecorder.ondataavailable = (event) => {
+                    if (event.data.size > 0 && socket && socket.readyState === WebSocket.OPEN) {
+                        event.data.arrayBuffer().then(buffer => {
+                            socket.send(buffer);
+                        });
+                    }
+                };
+                
+                mediaRecorder.onerror = (event) => {
+                    console.error("MediaRecorder error:", event.error);
+                    updateStatus("Recording error", "error");
+                };
+                
+                // Start recording with frequent chunks
+                mediaRecorder.start(1000); // Send chunk every 1 second
+                isRecording = true;
+                
+                // Update UI
+                document.getElementById('startBtn').disabled = true;
+                document.getElementById('stopBtn').disabled = false;
+                updateStatus("Recording... Speak now!", "recording");
+                
+                // Clear previous results
+                updateTranscript("Listening...");
+                updateLLMResponse("Waiting for transcript...");
+                
+            } catch (error) {
+                console.error("Error starting recording:", error);
+                updateStatus(`Error: ${error.message}`, "error");
+            }
+        }
+
+        function stopRecording() {
+            if (mediaRecorder && isRecording) {
+                mediaRecorder.stop();
+                isRecording = false;
+            }
+            
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+            
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                socket.close();
+            }
+            
+            // Update UI
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('stopBtn').disabled = true;
+            updateStatus("Processing...", "");
+        }
+
+        // Auto-cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (isRecording) {
+                stopRecording();
+            }
+        });
+    </script>
+</body>
+</html>

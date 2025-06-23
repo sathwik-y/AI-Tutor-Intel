@@ -1,8 +1,12 @@
 .env
 __pycache__
-qwen2.5-optimized/
-ov_llama3.1-8b-int8/
+# models/
+qwen2.5-optimized-fp16/
+qwen2.5-optimized-int8/
+SAGE_SYSTEM_DOCUMENTATION.md
 OpenVinoLlama.ipynb
 benchmark.py
 main.py
 OpenVino.ipynb
+OpenVinoQwen-fp16.ipynb
+.idea/

@@ -2,10 +2,10 @@
 
 # Model configuration - general purpose settings
 MODEL_CONFIG = {
-    "model_path": "models/qwen2.5-optimized", 
-    "max_tokens": 2048,
+    "model_path": "models/qwen2.5-optimized-int8", 
+    "max_tokens": 1024,
     "max_new_tokens": 400,
-    "temperature": 0.7,
+    "temperature": 0.2,
     "top_p": 0.9,
     "top_k": 50,
     "repetition_penalty": 1.05
