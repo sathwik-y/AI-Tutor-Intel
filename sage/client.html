@@ -1,224 +1,413 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>🎤 SAGE Real-Time STT Demo</title>
+    <title>🧠 SAGE - Smart Classroom Assistant</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            max-width: 800px;
+            max-width: 1000px;
             margin: 0 auto;
             padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .header {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .feature-section {
+            background: white;
+            margin: 15px 0;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         
         button {
             padding: 10px 20px;
             font-size: 16px;
-            margin: 10px;
+            margin: 5px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            transition: all 0.3s;
         }
         
-        #startBtn {
-            background-color: #4CAF50;
+        .primary-btn {
+            background-color: #667eea;
             color: white;
         }
         
-        #stopBtn {
+        .primary-btn:hover {
+            background-color: #5a6fd8;
+        }
+        
+        .danger-btn {
             background-color: #f44336;
             color: white;
         }
         
-        #status {
+        .success-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        .recording {
+            background-color: #ff6b6b !important;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+        
+        .status {
             padding: 10px;
             margin: 10px 0;
             border-radius: 5px;
             font-weight: bold;
         }
         
-        .recording {
-            background-color: #ffebee;
-            color: #c62828;
-        }
+        .connected { background-color: #e8f5e8; color: #2e7d32; }
+        .error { background-color: #ffebee; color: #c62828; }
+        .info { background-color: #e3f2fd; color: #1976d2; }
+        .processing { background-color: #fff3e0; color: #f57c00; }
         
-        .connected {
-            background-color: #e8f5e8;
-            color: #2e7d32;
-        }
-        
-        .error {
-            background-color: #ffebee;
-            color: #c62828;
-        }
-        
-        #transcript, #llmResponse {
+        .response-box {
             border: 1px solid #ddd;
             padding: 15px;
             margin: 10px 0;
             border-radius: 5px;
-            min-height: 100px;
+            min-height: 80px;
             background-color: #f9f9f9;
         }
         
-        #llmResponse {
+        .llm-response {
             background-color: #e3f2fd;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        
+        .file-upload {
+            border: 2px dashed #ddd;
+            padding: 20px;
+            text-align: center;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin: 10px 0;
+        }
+        
+        .stat-card {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .tts-controls {
+            background: #f0f8ff;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border-left: 4px solid #667eea;
+        }
+        
+        .auto-tts-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
         }
     </style>
 </head>
 <body>
-    <h1>🎤 SAGE Real-Time STT Demo</h1>
-    
-    <div>
-        <button id="startBtn" onclick="startRecording()">Start Recording</button>
-        <button id="stopBtn" onclick="stopRecording()" disabled>Stop Recording</button>
+    <div class="header">
+        <h1>🧠 SAGE - Smart Classroom Assistant</h1>
+        <p>AI-Powered Learning with Speech, Vision, and Knowledge Base</p>
     </div>
-    
-    <div id="status">Ready to connect...</div>
-    
-    <h3>Live Transcript:</h3>
-    <div id="transcript">Transcript will appear here...</div>
-    
-    <h3>LLM Response:</h3>
-    <div id="llmResponse">LLM response will appear here...</div>
+
+    <!-- TTS Settings -->
+    <div class="feature-section">
+        <h3>🔊 Audio Settings</h3>
+        <div class="auto-tts-toggle">
+            <label>
+                <input type="checkbox" id="autoTTS" checked> 
+                Automatic Speech Output (recommended for classroom)
+            </label>
+        </div>
+        
+        <div class="tts-controls">
+            <button class="primary-btn" onclick="testTTS()">🔊 Test Speaker</button>
+            <button class="primary-btn" onclick="loadVoices()">🎭 Load Voices</button>
+            <span id="ttsStatus" class="status info">Auto-TTS enabled</span>
+        </div>
+        
+        <!-- Voice Controls -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin: 10px 0;">
+            <div>
+                <label>Voice:</label>
+                <select id="voiceSelect" onchange="updateVoiceSettings()">
+                    <option value="">Loading voices...</option>
+                </select>
+            </div>
+            <div>
+                <label>Speed: <span id="speedValue">180</span> WPM</label>
+                <input type="range" id="speedSlider" min="50" max="300" value="180" 
+                       oninput="updateSpeedDisplay(); updateVoiceSettings()">
+            </div>
+            <div>
+                <label>Volume: <span id="volumeValue">90</span>%</label>
+                <input type="range" id="volumeSlider" min="0" max="100" value="90" 
+                       oninput="updateVolumeDisplay(); updateVoiceSettings()">
+            </div>
+        </div>
+    </div>
+
+    <!-- Real-time Audio Query -->
+    <div class="feature-section">
+        <h3>🎤 Voice Assistant</h3>
+        <div>
+            <button id="startBtn" class="success-btn" onclick="startRecording()">🎤 Start Listening</button>
+            <button id="stopBtn" class="danger-btn" onclick="stopRecording()" disabled>⏹ Stop & Process</button>
+        </div>
+        
+        <div id="audioStatus" class="status">Ready to listen...</div>
+        
+        <div>
+            <h4>📝 Student Question:</h4>
+            <div id="transcript" class="response-box">Transcript will appear here...</div>
+        </div>
+        
+        <div>
+            <h4>🤖 SAGE Response:</h4>
+            <div id="llmResponse" class="response-box llm-response">Response will appear here...</div>
+        </div>
+    </div>
+
+    <!-- Text Query -->
+    <div class="feature-section">
+        <h3>💬 Text Query</h3>
+        <textarea id="textQuery" placeholder="Ask SAGE anything about the course material..." rows="3"></textarea>
+        <button class="primary-btn" onclick="submitTextQuery()">💬 Ask SAGE</button>
+        <div id="textResponse" class="response-box llm-response"></div>
+    </div>
+
+    <!-- Document Upload -->
+    <div class="feature-section">
+        <h3>📚 Knowledge Base</h3>
+        <div class="file-upload">
+            <input type="file" id="pdfFile" accept=".pdf">
+            <button class="primary-btn" onclick="uploadPDF()">📤 Upload PDF to Knowledge Base</button>
+        </div>
+        <div id="uploadStatus" class="status"></div>
+    </div>
+
+    <!-- Image Analysis -->
+    <div class="feature-section">
+        <h3>📸 Image Analysis</h3>
+        <div class="file-upload">
+            <input type="file" id="imageFile" accept="image/*">
+            <textarea id="imageQuery" placeholder="What would you like to know about this image?" rows="2">What information can you extract from this image?</textarea>
+            <button class="primary-btn" onclick="analyzeImage()">🔍 Analyze Image</button>
+        </div>
+        <div id="imageResponse" class="response-box llm-response"></div>
+    </div>
+
+    <!-- Attendance System -->
+    <div class="feature-section">
+        <h3>👥 Attendance Tracker</h3>
+        <div class="file-upload">
+            <input type="file" id="attendanceImage" accept="image/*">
+            <button class="primary-btn" onclick="processAttendance()">📊 Count Students</button>
+            <button class="primary-btn" onclick="getAttendanceStats()">📈 View Stats</button>
+        </div>
+        
+        <div class="stats-grid" id="attendanceStats" style="display: none;">
+            <div class="stat-card">
+                <div id="currentCount">0</div>
+                <div>Current Count</div>
+            </div>
+            <div class="stat-card">
+                <div id="avgAttendance">0</div>
+                <div>Average</div>
+            </div>
+            <div class="stat-card">
+                <div id="maxAttendance">0</div>
+                <div>Maximum</div>
+            </div>
+            <div class="stat-card">
+                <div id="totalRecords">0</div>
+                <div>Records</div>
+            </div>
+        </div>
+        
+        <div id="attendanceResponse" class="response-box"></div>
+    </div>
 
     <script>
         let socket = null;
         let mediaRecorder = null;
         let stream = null;
         let isRecording = false;
+        let currentAudio = null;
 
-        function updateStatus(message, className = '') {
-            const status = document.getElementById('status');
-            status.textContent = message;
-            status.className = className;
+        // Auto-TTS functionality
+        async function speakText(text) {
+            const autoTTS = document.getElementById('autoTTS').checked;
+            if (!autoTTS || !text) return;
+
+            try {
+                // Stop any currently playing audio
+                if (currentAudio) {
+                    currentAudio.pause();
+                    currentAudio = null;
+                }
+
+                document.getElementById('ttsStatus').textContent = 'Generating speech...';
+                
+                const response = await fetch('/api/tts/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: text })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    // Play the generated audio
+                    currentAudio = new Audio(data.audio_url);
+                    currentAudio.play();
+                    
+                    document.getElementById('ttsStatus').textContent = '🔊 Speaking...';
+                    
+                    currentAudio.onended = () => {
+                        document.getElementById('ttsStatus').textContent = 'Ready for next response';
+                    };
+                    
+                } else {
+                    console.error('TTS failed');
+                    document.getElementById('ttsStatus').textContent = 'TTS error';
+                }
+            } catch (error) {
+                console.error('TTS error:', error);
+                document.getElementById('ttsStatus').textContent = 'TTS unavailable';
+            }
         }
 
-        function updateTranscript(text) {
-            document.getElementById('transcript').textContent = text;
+        function testTTS() {
+            speakText("Hello! I'm SAGE, your smart classroom assistant. I'm ready to help with your questions.");
         }
 
-        function updateLLMResponse(text) {
-            document.getElementById('llmResponse').textContent = text;
+        function updateStatus(elementId, message, className = '') {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `status ${className}`;
         }
 
+        // WebSocket Audio Functions
         function connectWebSocket() {
             socket = new WebSocket("ws://localhost:8000/ws/transcribe");
             
             socket.onopen = () => {
-                updateStatus("Connected to server", "connected");
-                console.log("WebSocket connected");
+                updateStatus('audioStatus', "🎤 Connected - Recording in progress...", "connected");
             };
 
             socket.onmessage = (event) => {
                 try {
                     const data = JSON.parse(event.data);
-                    console.log("Received:", data.type, data);
                     
                     switch (data.type) {
                         case 'chunk_received':
-                            updateStatus(`Recording... (${data.chunk_count} chunks received)`, "recording");
+                            updateStatus('audioStatus', `Recording... (${data.chunk_count} chunks)`, "connected");
                             break;
                         case 'processing':
-                            updateStatus(data.message, "");
-                            updateTranscript("Processing your audio...");
+                            updateStatus('audioStatus', data.message, "processing");
+                            document.getElementById('transcript').textContent = "🔄 Processing your audio...";
                             break;
                         case 'final_transcript':
-                            updateTranscript(data.text);
-                            updateStatus("Transcript ready, generating response...", "");
+                            document.getElementById('transcript').textContent = data.text;
+                            updateStatus('audioStatus', "Transcript ready, thinking...", "processing");
                             break;
                         case 'generating':
-                            updateStatus(data.message, "");
+                            updateStatus('audioStatus', data.message, "processing");
                             break;
                         case 'llm_response':
-                            updateLLMResponse(data.text);
-                            updateStatus("Complete!", "connected");
+                            document.getElementById('llmResponse').textContent = data.text;
+                            updateStatus('audioStatus', "✅ Complete! Ready for next question.", "connected");
+                            
+                            // Auto-speak the response
+                            speakText(data.text);
                             break;
                         case 'error':
-                            updateStatus(`Error: ${data.message}`, "error");
-                            updateTranscript(`Error: ${data.message}`);
-                            console.error("Server error:", data.message);
+                            updateStatus('audioStatus', `❌ Error: ${data.message}`, "error");
                             break;
-                        default:
-                            console.log("Unknown message type:", data.type);
                     }
                 } catch (e) {
-                    console.error("Failed to parse message:", event.data, e);
+                    console.error("Failed to parse message:", e);
                 }
             };
 
-            socket.onerror = (error) => {
-                updateStatus("WebSocket error", "error");
-                console.error("WebSocket error:", error);
-            };
-
-            socket.onclose = (event) => {
-                console.log("WebSocket closed:", event.code, event.reason);
-                
-                if (isRecording) {
-                    updateStatus("Processing your recording...", "");
-                } else {
-                    updateStatus("Connection closed", "");
-                }
-                
-                // Reset buttons
+            socket.onclose = () => {
                 document.getElementById('startBtn').disabled = false;
                 document.getElementById('stopBtn').disabled = true;
                 isRecording = false;
+                
+                if (document.getElementById('audioStatus').textContent.includes('Processing')) {
+                    updateStatus('audioStatus', "🔄 Processing complete audio...", "processing");
+                }
             };
         }
 
         async function startRecording() {
             try {
-                // Connect WebSocket first
                 connectWebSocket();
-                
-                // Wait a moment for connection
                 await new Promise(resolve => setTimeout(resolve, 500));
                 
-                // Get microphone access
                 stream = await navigator.mediaDevices.getUserMedia({ 
-                    audio: {
-                        sampleRate: 16000,
-                        channelCount: 1,
-                        echoCancellation: true,
-                        noiseSuppression: true
-                    } 
+                    audio: { sampleRate: 16000, channelCount: 1, echoCancellation: true } 
                 });
                 
-                // Create MediaRecorder with appropriate format
-                mediaRecorder = new MediaRecorder(stream, {
-                    mimeType: 'audio/webm;codecs=opus'
-                });
+                mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm;codecs=opus' });
                 
                 mediaRecorder.ondataavailable = (event) => {
                     if (event.data.size > 0 && socket && socket.readyState === WebSocket.OPEN) {
-                        event.data.arrayBuffer().then(buffer => {
-                            socket.send(buffer);
-                        });
+                        event.data.arrayBuffer().then(buffer => socket.send(buffer));
                     }
                 };
                 
-                mediaRecorder.onerror = (event) => {
-                    console.error("MediaRecorder error:", event.error);
-                    updateStatus("Recording error", "error");
-                };
-                
-                // Start recording with frequent chunks
-                mediaRecorder.start(1000); // Send chunk every 1 second
+                mediaRecorder.start(1000);
                 isRecording = true;
                 
-                // Update UI
                 document.getElementById('startBtn').disabled = true;
                 document.getElementById('stopBtn').disabled = false;
-                updateStatus("Recording... Speak now!", "recording");
+                document.getElementById('startBtn').className = 'success-btn recording';
                 
-                // Clear previous results
-                updateTranscript("Listening...");
-                updateLLMResponse("Waiting for transcript...");
+                document.getElementById('transcript').textContent = "🎤 Listening... Speak your question now!";
+                document.getElementById('llmResponse').textContent = "Waiting for your question...";
                 
             } catch (error) {
-                console.error("Error starting recording:", error);
-                updateStatus(`Error: ${error.message}`, "error");
+                updateStatus('audioStatus', `❌ Error: ${error.message}`, "error");
             }
         }
 
@@ -226,6 +415,13 @@
             if (mediaRecorder && isRecording) {
                 mediaRecorder.stop();
                 isRecording = false;
+                
+                // Wait a moment before closing WebSocket to allow processing
+                setTimeout(() => {
+                    if (socket && socket.readyState === WebSocket.OPEN) {
+                        socket.close();
+                    }
+                }, 2000);  // Wait 2 seconds for processing
             }
             
             if (stream) {
@@ -233,21 +429,215 @@
                 stream = null;
             }
             
-            if (socket && socket.readyState === WebSocket.OPEN) {
-                socket.close();
-            }
-            
-            // Update UI
             document.getElementById('startBtn').disabled = false;
             document.getElementById('stopBtn').disabled = true;
-            updateStatus("Processing...", "");
+            document.getElementById('startBtn').className = 'success-btn';
+            
+            updateStatus('audioStatus', "🔄 Processing your recording...", "processing");
         }
 
-        // Auto-cleanup on page unload
-        window.addEventListener('beforeunload', () => {
-            if (isRecording) {
-                stopRecording();
+        // Text Query
+        async function submitTextQuery() {
+            const query = document.getElementById('textQuery').value;
+            if (!query.trim()) return;
+
+            try {
+                const response = await fetch('/api/query/text', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: query })
+                });
+
+                const data = await response.json();
+                document.getElementById('textResponse').textContent = data.answer;
+                
+                // Auto-speak the response
+                speakText(data.answer);
+                
+            } catch (error) {
+                document.getElementById('textResponse').textContent = `Error: ${error.message}`;
             }
+        }
+
+        // PDF Upload
+        async function uploadPDF() {
+            const fileInput = document.getElementById('pdfFile');
+            if (!fileInput.files[0]) return;
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            try {
+                updateStatus('uploadStatus', 'Uploading and processing PDF...', 'processing');
+                
+                const response = await fetch('/api/upload-pdf', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                updateStatus('uploadStatus', `✅ ${data.status}`, 'connected');
+                
+            } catch (error) {
+                updateStatus('uploadStatus', `❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        // Image Analysis
+        async function analyzeImage() {
+            const fileInput = document.getElementById('imageFile');
+            const query = document.getElementById('imageQuery').value;
+            
+            if (!fileInput.files[0]) return;
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            formData.append('query', query);
+
+            try {
+                const response = await fetch('/api/query/image', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                document.getElementById('imageResponse').textContent = data.answer;
+                
+                // Auto-speak the response
+                speakText(data.answer);
+                
+            } catch (error) {
+                document.getElementById('imageResponse').textContent = `Error: ${error.message}`;
+            }
+        }
+
+        // Attendance Processing
+        async function processAttendance() {
+            const fileInput = document.getElementById('attendanceImage');
+            if (!fileInput.files[0]) return;
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            try {
+                const response = await fetch('/api/attendance/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                
+                document.getElementById('attendanceResponse').innerHTML = `
+                    <strong>Headcount: ${data.headcount} students detected</strong><br>
+                    Timestamp: ${new Date(data.timestamp).toLocaleString()}<br>
+                    Session ID: ${data.session_id}
+                    ${data.annotated_image_url ? `<br><img src="${data.annotated_image_url}" style="max-width: 100%; margin-top: 10px;">` : ''}
+                `;
+                
+                document.getElementById('currentCount').textContent = data.headcount;
+                
+                // Auto-announce attendance
+                speakText(`I detected ${data.headcount} students in the classroom.`);
+                
+            } catch (error) {
+                document.getElementById('attendanceResponse').textContent = `Error: ${error.message}`;
+            }
+        }
+
+        // Attendance Stats
+        async function getAttendanceStats() {
+            try {
+                const response = await fetch('/api/attendance/stats');
+                const data = await response.json();
+                
+                document.getElementById('attendanceStats').style.display = 'grid';
+                document.getElementById('avgAttendance').textContent = Math.round(data.average_attendance);
+                document.getElementById('maxAttendance').textContent = data.max_attendance;
+                document.getElementById('totalRecords').textContent = data.total_records;
+                
+                const statsText = `Attendance statistics: Average ${Math.round(data.average_attendance)} students, Maximum ${data.max_attendance} students, Total ${data.total_records} records.`;
+                speakText(statsText);
+                
+            } catch (error) {
+                console.error('Stats error:', error);
+            }
+        }
+
+        // Auto-cleanup
+        window.addEventListener('beforeunload', () => {
+            if (isRecording) stopRecording();
+            if (currentAudio) currentAudio.pause();
+        });
+
+        // Voice control functions
+        async function loadVoices() {
+            try {
+                const response = await fetch('/api/tts/voices');
+                const data = await response.json();
+                
+                const voiceSelect = document.getElementById('voiceSelect');
+                voiceSelect.innerHTML = '<option value="">Select Voice</option>';
+                
+                data.voices.forEach((voice, index) => {
+                    const option = document.createElement('option');
+                    option.value = index;
+                    option.textContent = voice.name;
+                    voiceSelect.appendChild(option);
+                });
+                
+                // Load current settings
+                const statusResponse = await fetch('/api/tts/status');
+                const statusData = await statusResponse.json();
+                
+                if (statusData.settings) {
+                    document.getElementById('voiceSelect').value = statusData.settings.voice_index;
+                    document.getElementById('speedSlider').value = statusData.settings.rate;
+                    document.getElementById('volumeSlider').value = Math.round(statusData.settings.volume * 100);
+                    updateSpeedDisplay();
+                    updateVolumeDisplay();
+                }
+                
+            } catch (error) {
+                console.error('Failed to load voices:', error);
+            }
+        }
+
+        function updateSpeedDisplay() {
+            document.getElementById('speedValue').textContent = document.getElementById('speedSlider').value;
+        }
+
+        function updateVolumeDisplay() {
+            document.getElementById('volumeValue').textContent = document.getElementById('volumeSlider').value;
+        }
+
+        async function updateVoiceSettings() {
+            try {
+                const settings = {
+                    voice_index: parseInt(document.getElementById('voiceSelect').value) || 0,
+                    rate: parseInt(document.getElementById('speedSlider').value),
+                    volume: parseFloat(document.getElementById('volumeSlider').value) / 100
+                };
+
+                const response = await fetch('/api/tts/settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(settings)
+                });
+
+                if (response.ok) {
+                    document.getElementById('ttsStatus').textContent = 'Settings updated!';
+                    setTimeout(() => {
+                        document.getElementById('ttsStatus').textContent = 'Ready for next response';
+                    }, 2000);
+                }
+            } catch (error) {
+                console.error('Failed to update settings:', error);
+            }
+        }
+
+        // Initialize voices on page load
+        window.addEventListener('load', () => {
+            loadVoices();
         });
     </script>
 </body>

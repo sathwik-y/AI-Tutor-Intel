@@ -1,3 +1,4 @@
+# app/services/audio_service.py
 import os
 import tempfile
 import asyncio
@@ -6,7 +7,6 @@ from typing import Optional
 import io
 import wave
 import subprocess
-# from app.services.whisper_onnx_model import transcribe_chunk
 
 # ------------------------------
 # FILE TRANSCRIPTION: Faster-Whisper
@@ -21,20 +21,16 @@ async def transcribe_audio(file) -> str:
         tmp.write(contents)
         tmp_path = tmp.name
 
-    segments, info = model_whisper.transcribe(tmp_path)
+    # Force English language
+    segments, info = model_whisper.transcribe(tmp_path, language="en")
     transcript = " ".join([seg.text for seg in segments])
 
     os.remove(tmp_path)
     return transcript
 
 # ------------------------------
-# CHUNKED TRANSCRIPTION: ONNX/OpenVINO
+# CHUNKED TRANSCRIPTION: Faster-Whisper with English
 # ------------------------------
-# NOTE: Replace this with your actual ONNX/OpenVINO Whisper Tiny model
-# This is a placeholder for where you'd load your ONNX model
-# e.g., `whisper_onnx_model = load_onnx_model(...)`
-whisper_onnx_model = None
-
 async def transcribe_audio_chunk(data: bytes) -> str:
     """Perform transcription for a chunk of audio data."""
     try:
@@ -48,8 +44,7 @@ async def transcribe_audio_chunk(data: bytes) -> str:
             output_path = tmp_output.name
 
         # Use ffmpeg to convert WebM to WAV
-        # Update this path to point to your ffmpeg.exe location
-        ffmpeg_path = r"D:\ffmpeg-master-latest-win64-gpl-shared\bin\ffmpeg.exe"  # Change this path!
+        ffmpeg_path = r"D:\ffmpeg-master-latest-win64-gpl-shared\bin\ffmpeg.exe"  # Your path
         
         cmd = [
             ffmpeg_path, '-y', '-i', input_path,
@@ -70,8 +65,8 @@ async def transcribe_audio_chunk(data: bytes) -> str:
             print("No valid audio output from ffmpeg")
             return ""
 
-        # Use Faster-Whisper for transcription
-        segments, info = model_whisper.transcribe(output_path)
+        # Use Faster-Whisper for transcription with FORCED ENGLISH
+        segments, info = model_whisper.transcribe(output_path, language="en")
         transcript = " ".join([seg.text for seg in segments])
         
         # Clean up temp files
