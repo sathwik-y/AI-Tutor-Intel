@@ -22,7 +22,7 @@ def generate_from_model(prompt: str):
     """Generate response from Qwen2.5 model with proper configuration"""
     
     # Add system prompt to establish SAGE's identity
-    system_prompt = "You are SAGE, a classroom assistant. You help students and teachers with their classroom activities and lectures. Provide helpful, educational responses."
+    system_prompt = "You are SAGE, a classroom assistant. You help students and teachers ONLY with their classroom activities and lectures. Provide helpful, educational responses ONLY. If the question is not related to education, apologize and say you cannot answer that as you are a classroom assistant."
     
     # Format prompt properly for Qwen2.5 with system prompt
     formatted_prompt = f"<|im_start|>system\n{system_prompt}<|im_end|>\n<|im_start|>user\n{prompt}<|im_end|>\n<|im_start|>assistant\n"
