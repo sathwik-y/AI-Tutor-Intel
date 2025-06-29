@@ -6,60 +6,68 @@ import asyncio
 import json
 
 router = APIRouter()
-
+last_response = {"transcript": "", "response": "", "ready": False}
 @router.websocket("/ws/transcribe")
 async def websocket_transcribe(ws: WebSocket):
     await ws.accept()
     audio_chunks = []
-    processing_complete = False
     
     try:
         while True:
-            try:
-                # Set a timeout for receiving data
-                chunk = await asyncio.wait_for(ws.receive_bytes(), timeout=1.0)
+            # Receive audio chunk (no timeout)
+            chunk = await ws.receive_bytes()
+            
+            # Store chunk for processing
+            if len(chunk) > 100:
+                audio_chunks.append(chunk)
                 
-                # Store chunk for processing
-                if len(chunk) > 100:
-                    audio_chunks.append(chunk)
-                    
-                    # Send acknowledgment to client
-                    await ws.send_text(json.dumps({
-                        "type": "chunk_received", 
-                        "chunk_count": len(audio_chunks)
-                    }))
-                    
-            except asyncio.TimeoutError:
-                # No data received for 1 second - check if we should process
-                if audio_chunks and not processing_complete:
-                    # Process audio while connection is still open
-                    await process_audio_and_respond(ws, audio_chunks)
-                    processing_complete = True
-                continue
-                
+                # Send acknowledgment to client
+                await ws.send_text(json.dumps({
+                    "type": "chunk_received", 
+                    "chunk_count": len(audio_chunks)
+                }))
+
     except WebSocketDisconnect:
-        print("Client disconnected")
-        if not processing_complete and audio_chunks:
-            print("Processing audio after disconnect...")
-            # Still try to process for debugging
-            combined_audio = b''.join(audio_chunks)
+        print("Client disconnected, processing audio...")
+        # Process audio after disconnect
+        if audio_chunks:
             try:
+                combined_audio = b''.join(audio_chunks)
                 final_transcript = await transcribe_chunk(combined_audio)
+                
                 if final_transcript.strip():
-                    print(f"Final transcript (silent): {final_transcript}")
+                    print(f"Final transcript: {final_transcript}")
                     llm_answer = generate_from_model(final_transcript)
-                    print(f"LLM response (silent): {llm_answer[:100]}...")
+                    print(f"LLM response: {llm_answer[:100]}...")
+                    
+                    # Store for client polling (from your other version)
+                    last_response["transcript"] = final_transcript
+                    last_response["response"] = llm_answer
+                    last_response["ready"] = True
+                    
+                else:
+                    print("No speech detected")
+                    
             except Exception as e:
-                print(f"Silent processing error: {e}")
+                print(f"Processing error: {e}")
     
     except Exception as e:
         print(f"WebSocket error: {e}")
 
-    finally:
-        try:
-            await ws.close()
-        except:
-            pass
+# Add at the top after imports
+
+
+# Add this endpoint
+@router.get("/get-last-response")
+async def get_last_response():
+    """Get the last transcription response"""
+    if last_response["ready"]:
+        result = last_response.copy()
+        last_response["ready"] = False
+        return result
+    else:
+        return {"ready": False}
+    
 
 async def process_audio_and_respond(ws: WebSocket, audio_chunks: list):
     """Process audio and send response while WebSocket is open"""

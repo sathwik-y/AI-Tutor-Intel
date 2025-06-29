@@ -411,32 +411,49 @@
             }
         }
 
-        function stopRecording() {
-            if (mediaRecorder && isRecording) {
-                mediaRecorder.stop();
-                isRecording = false;
-                
-                // Wait a moment before closing WebSocket to allow processing
-                setTimeout(() => {
-                    if (socket && socket.readyState === WebSocket.OPEN) {
-                        socket.close();
-                    }
-                }, 2000);  // Wait 2 seconds for processing
-            }
-            
-            if (stream) {
-                stream.getTracks().forEach(track => track.stop());
-                stream = null;
-            }
-            
-            document.getElementById('startBtn').disabled = false;
-            document.getElementById('stopBtn').disabled = true;
-            document.getElementById('startBtn').className = 'success-btn';
-            
-            updateStatus('audioStatus', "🔄 Processing your recording...", "processing");
-        }
-
+    function stopRecording() {
+    if (mediaRecorder && isRecording) {
+        mediaRecorder.stop();
+        isRecording = false;
+    }
+    
+    if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+        stream = null;
+    }
+    
+    if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.close();
+    }
+    
+    document.getElementById('startBtn').disabled = false;
+    document.getElementById('stopBtn').disabled = true;
+    document.getElementById('startBtn').className = 'success-btn';
+    
+    // Poll for results after closing
+    updateStatus('audioStatus', "🔄 Processing your recording...", "processing");
+    setTimeout(pollForResults, 2000);
+}
         // Text Query
+    async function pollForResults(attempts = 0) {
+    try {
+        const response = await fetch('/get-last-response');
+        const data = await response.json();
+        
+        if (data.ready) {
+            document.getElementById('transcript').textContent = data.transcript;
+            document.getElementById('llmResponse').textContent = data.response;
+            updateStatus('audioStatus', "✅ Complete! Ready for next question.", "connected");
+            speakText(data.response);
+        } else if (attempts < 10) {
+            setTimeout(() => pollForResults(attempts + 1), 1000);
+        } else {
+            updateStatus('audioStatus', "❌ Processing timeout", "error");
+        }
+    } catch (error) {
+        console.error('Polling error:', error);
+    }
+}
         async function submitTextQuery() {
             const query = document.getElementById('textQuery').value;
             if (!query.trim()) return;
