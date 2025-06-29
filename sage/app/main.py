@@ -22,6 +22,10 @@ async def lifespan(app: FastAPI):
     from app.services.tts_service import initialize_tts
     initialize_tts()
     
+    # Initialize Vision AI service
+    from app.services.vision_service import initialize_vision
+    initialize_vision()
+    
     print("✅ All services initialized successfully")
     
     yield

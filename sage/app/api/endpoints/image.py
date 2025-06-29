@@ -1,26 +1,12 @@
+# app/api/endpoints/image.py
 from fastapi import APIRouter, UploadFile, HTTPException, Form
 import pytesseract
 from PIL import Image
 from app.core.rag import build_index_from_chunks, texts, index
 from app.services.gen_service import generate_llm_response
 from app.services.utils import maybe_generate_visual
+from app.services.vision_service import analyze_image_with_vision
 import io
-# import os
-# import platform
-
-# # Configure tesseract path for Windows
-# if platform.system() == "Windows":
-#     # Try common Windows installation paths
-#     possible_paths = [
-#         r"C:\Program Files\Tesseract-OCR\tesseract.exe",
-#         r"C:\Program Files (x86)\Tesseract-OCR\tesseract.exe",
-#         r"C:\Users\{}\AppData\Local\Tesseract-OCR\tesseract.exe".format(os.getenv('USERNAME', '')),
-#     ]
-    
-#     for path in possible_paths:
-#         if os.path.exists(path):
-#             pytesseract.pytesseract.tesseract_cmd = path
-#             break
 
 router = APIRouter()
 
@@ -29,7 +15,7 @@ image_texts = []
 
 @router.post("/upload-image")
 async def upload_image(file: UploadFile):
-    """Extract text from image and add to knowledge base"""
+    """Extract text from image and add to knowledge base (OCR ONLY - unchanged)"""
     try:
         # Read and process the uploaded image
         image_bytes = await file.read()
@@ -66,49 +52,59 @@ async def upload_image(file: UploadFile):
 
 @router.post("/query/image")
 async def query_image_direct(file: UploadFile, query: str = Form("What information can you extract from this image?")):
-    """One-shot: Upload image and query it directly without adding to knowledge base"""
+    """Query image using BOTH OCR and Vision AI (VISION PRIORITIZED)"""
     try:
         # Read and process the uploaded image
         image_bytes = await file.read()
         image = Image.open(io.BytesIO(image_bytes))
         
-        # Extract text using OCR
+        # 1. Analyze image using Vision AI FIRST
+        vision_analysis = await analyze_image_with_vision(image_bytes, query)
+        
+        # 2. Extract text using OCR
         extracted_text = pytesseract.image_to_string(image, config='--psm 6')
         
-        if not extracted_text.strip():
-            return {
-                "extracted_text": "",
-                "answer": "No text could be extracted from this image.",
-                "visual": None
-            }
-        
-        # Create an intelligent contextual prompt for better responses
-        prompt = f"""You are an intelligent AI assistant analyzing text extracted from an image using OCR. Your task is to provide comprehensive, well-structured, and insightful responses based on the extracted content.
+        # 3. Create smart prompt that prioritizes vision
+        if extracted_text.strip() and len(extracted_text.strip()) > 10:
+            # Has meaningful text
+            prompt = f"""You are analyzing an image that contains both visual content and text.
 
-EXTRACTED TEXT FROM IMAGE:
-{extracted_text}
+VISUAL ANALYSIS: {vision_analysis}
 
-USER QUERY: {query}
+TEXT CONTENT: {extracted_text.strip()}
+
+USER QUESTION: {query}
 
 INSTRUCTIONS:
-- Analyze the extracted text thoroughly and provide a detailed, intelligent response
-- Structure your answer clearly with proper formatting when appropriate
-- If the user asks for "exact content" or "without data loss", provide the complete extracted text organized clearly
-- Explain concepts, provide context, and elaborate on important points
-- Use your knowledge to enhance the response beyond just the raw text
-- Be comprehensive and thoughtful in your analysis
-- Format lists, sections, and key points clearly
-- Provide insights and connections between different parts of the content
+- The visual analysis tells you what's actually in the image
+- Use the visual analysis as your primary source of information
+- Only mention text content if it's relevant to the user's question
+- Give a natural, helpful response based on what you can see
+
+RESPONSE:"""
+        else:
+            # No meaningful text, focus on vision
+            prompt = f"""You are analyzing an image for a user.
+
+VISUAL ANALYSIS: {vision_analysis}
+
+USER QUESTION: {query}
+
+INSTRUCTIONS:
+- Provide a helpful response based on the visual content
+- Be natural and conversational
+- Focus on what's actually visible in the image
 
 RESPONSE:"""
         
-        # Generate direct response using the model (not RAG)
+        # Generate response using the model
         from app.core.model import generate_from_model
         answer = generate_from_model(prompt)
         visual = maybe_generate_visual(answer)
 
         return {
             "extracted_text": extracted_text.strip(),
+            "vision_analysis": vision_analysis,
             "answer": answer,
             "visual": visual
         }
