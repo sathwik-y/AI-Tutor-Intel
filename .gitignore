@@ -10,3 +10,12 @@ main.py
 OpenVino.ipynb
 OpenVinoQwen-fp16.ipynb
 .idea/
+
+!sage/static/attendance/.gitkeep
+!sage/static/audio/.gitkeep
+!sage/static/exports/.gitkeep
+
+
+sage/static/attendance/*
+sage/static/audio/*
+sage/static/exports/*
