@@ -6,7 +6,7 @@ import { useState } from "react"
 import { PlaceholdersAndVanishInput } from "./ui/placeholders-and-vanish-input"
 import { ArrowRight } from "lucide-react"
 
-export function LoginForm({ onBackToLanding }) {
+export function LoginForm({ onBackToLanding, onLoginSuccess }) {
   const [currentStep, setCurrentStep] = useState(0)
   const [formData, setFormData] = useState({
     email: "",
@@ -55,8 +55,12 @@ export function LoginForm({ onBackToLanding }) {
       setCurrentStep((prev) => prev + 1)
     } else {
       console.log("Login data:", formData)
-      alert("Login successful!")
-      onBackToLanding()
+      
+      // Simple role detection based on email (you can improve this)
+      const role = formData.email.includes('teacher') || formData.email.includes('admin') ? 'teacher' : 'student'
+      
+      alert(`Login successful as ${role}!`)
+      onLoginSuccess(role)
     }
   }
 

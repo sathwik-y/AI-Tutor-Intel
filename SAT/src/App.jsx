@@ -5,9 +5,12 @@ import { HoverButton } from "./components/HoverButton"
 import { BlackHoleBackground } from "./components/BlackHoleBackground"
 import { SignUpForm } from "./components/SignUpForm"
 import { LoginForm } from "./components/LoginForm"
+import { TeacherDashboard } from "./components/TeacherDashboard"
+import { StudentPortal } from "./components/StudentPortal"
 
 function App() {
   const [currentPage, setCurrentPage] = useState("landing")
+  const [userRole, setUserRole] = useState(null)
 
   const handleSignUpClick = () => {
     console.log("Sign Up clicked!")
@@ -21,14 +24,32 @@ function App() {
 
   const handleBackToLanding = () => {
     setCurrentPage("landing")
+    setUserRole(null)
+  }
+
+  const handleLoginSuccess = (role) => {
+    setUserRole(role)
+    if (role === "teacher") {
+      setCurrentPage("teacher-dashboard")
+    } else {
+      setCurrentPage("student-portal")
+    }
   }
 
   if (currentPage === "signup") {
-    return <SignUpForm onBackToLanding={handleBackToLanding} />
+    return <SignUpForm onBackToLanding={handleBackToLanding} onSignUpSuccess={handleLoginSuccess} />
   }
 
   if (currentPage === "login") {
-    return <LoginForm onBackToLanding={handleBackToLanding} />
+    return <LoginForm onBackToLanding={handleBackToLanding} onLoginSuccess={handleLoginSuccess} />
+  }
+
+  if (currentPage === "teacher-dashboard") {
+    return <TeacherDashboard onLogout={handleBackToLanding} userRole={userRole} />
+  }
+
+  if (currentPage === "student-portal") {
+    return <StudentPortal onLogout={handleBackToLanding} userRole={userRole} />
   }
 
   return (

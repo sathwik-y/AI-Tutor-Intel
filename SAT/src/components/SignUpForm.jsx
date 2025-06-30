@@ -5,12 +5,13 @@ import { PlaceholdersAndVanishInput } from "./ui/placeholders-and-vanish-input"
 import { ArrowRight } from "lucide-react"
 import { cn } from "../lib/utils"
 
-export function SignUpForm({ onBackToLanding }) {
+export function SignUpForm({ onBackToLanding, onSignUpSuccess }) {
   const [currentStep, setCurrentStep] = useState(0)
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
+    role: "student" // Default role
   })
 
   const steps = [
@@ -39,6 +40,23 @@ export function SignUpForm({ onBackToLanding }) {
       subtitle: "Now, what's your email address?",
     },
     {
+      field: "role",
+      placeholders: [
+        "Select your role",
+        "Are you a teacher or student?",
+        "Choose your account type",
+        "What's your role?",
+        "Select user type",
+      ],
+      title: "Almost done!",
+      subtitle: "Tell us your role",
+      isSelect: true,
+      options: [
+        { value: "student", label: "Student" },
+        { value: "teacher", label: "Teacher" }
+      ]
+    },
+    {
       field: "password",
       placeholders: [
         "Create a secure password",
@@ -47,7 +65,7 @@ export function SignUpForm({ onBackToLanding }) {
         "Make it secure!",
         "Your secret password",
       ],
-      title: "Almost there!",
+      title: "Final step!",
       subtitle: "Create a secure password",
     },
   ]
@@ -60,6 +78,13 @@ export function SignUpForm({ onBackToLanding }) {
     }))
   }
 
+  const handleRoleSelect = (role) => {
+    setFormData((prev) => ({
+      ...prev,
+      role: role,
+    }))
+  }
+
   const handleSubmit = (e) => {
     e.preventDefault()
 
@@ -67,8 +92,8 @@ export function SignUpForm({ onBackToLanding }) {
       setCurrentStep((prev) => prev + 1)
     } else {
       console.log("Sign up data:", formData)
-      alert("Account created successfully!")
-      onBackToLanding()
+      alert(`Account created successfully as ${formData.role}!`)
+      onSignUpSuccess(formData.role)
     }
   }
 
@@ -115,13 +140,48 @@ export function SignUpForm({ onBackToLanding }) {
 
         {/* Input form */}
         <div className="mb-8">
-          <PlaceholdersAndVanishInput
-            placeholders={currentStepData.placeholders}
-            onChange={handleChange}
-            onSubmit={handleSubmit}
-            type={currentStepData.field === "password" ? "password" : "text"}
-            value={formData[currentStepData.field]}
-          />
+          {currentStepData.isSelect ? (
+            // Role selection
+            <div className="max-w-xl mx-auto">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {currentStepData.options.map((option) => (
+                  <button
+                    key={option.value}
+                    onClick={() => {
+                      handleRoleSelect(option.value)
+                      if (currentStep < steps.length - 1) {
+                        setCurrentStep((prev) => prev + 1)
+                      }
+                    }}
+                    className={`p-6 rounded-xl border-2 transition-all duration-300 text-center ${
+                      formData.role === option.value
+                        ? 'border-purple-500 bg-purple-900/40 text-white'
+                        : 'border-gray-600 hover:border-purple-400 bg-gray-800/50 text-gray-300 hover:text-white'
+                    }`}
+                  >
+                    <div className="text-2xl mb-2">
+                      {option.value === 'teacher' ? '👨‍🏫' : '👨‍🎓'}
+                    </div>
+                    <div className="text-xl font-semibold">{option.label}</div>
+                    <div className="text-sm mt-2 opacity-80">
+                      {option.value === 'teacher' 
+                        ? 'Manage classes and knowledge base' 
+                        : 'Learn with AI assistance'
+                      }
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <PlaceholdersAndVanishInput
+              placeholders={currentStepData.placeholders}
+              onChange={handleChange}
+              onSubmit={handleSubmit}
+              type={currentStepData.field === "password" ? "password" : "text"}
+              value={formData[currentStepData.field]}
+            />
+          )}
         </div>
 
         {/* Google Sign Up - only show on first step */}
