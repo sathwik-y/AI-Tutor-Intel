@@ -1,0 +1,747 @@
+"use client"
+
+import { useState, useRef, useEffect } from "react"
+import { 
+  BookOpen, 
+  Camera, 
+  Users, 
+  BarChart3, 
+  Settings, 
+  Mic, 
+  Upload, 
+  Image as ImageIcon,
+  Home,
+  LogOut,
+  Play,
+  Square,
+  Volume2,
+  VolumeX
+} from "lucide-react"
+
+export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
+  const [activeTab, setActiveTab] = useState("overview")
+  const [isRecording, setIsRecording] = useState(false)
+  const [cameraActive, setCameraActive] = useState(false)
+  const [autoTTS, setAutoTTS] = useState(true)
+  const [attendanceStats, setAttendanceStats] = useState({
+    current: 0,
+    average: 0,
+    maximum: 0,
+    records: 0
+  })
+
+  // Audio states
+  const [transcript, setTranscript] = useState("Transcript will appear here...")
+  const [llmResponse, setLlmResponse] = useState("Response will appear here...")
+  const [audioStatus, setAudioStatus] = useState("Ready to listen...")
+  
+  // Camera refs
+  const videoRef = useRef(null)
+  const canvasRef = useRef(null)
+  const cameraStreamRef = useRef(null)
+
+  // WebSocket and MediaRecorder refs
+  const socketRef = useRef(null)
+  const mediaRecorderRef = useRef(null)
+  const streamRef = useRef(null)
+
+  // Navigation items
+  const navItems = [
+    { id: "overview", label: "Overview", icon: Home },
+    { id: "attendance", label: "Live Attendance", icon: Camera },
+    { id: "knowledge", label: "Knowledge Base", icon: BookOpen },
+    { id: "assistant", label: "Class Assistant", icon: Mic },
+    { id: "analytics", label: "Analytics", icon: BarChart3 },
+    { id: "settings", label: "Settings", icon: Settings }
+  ]
+
+  // Auto-speak function
+  const speakText = async (text) => {
+    if (!autoTTS || !text) return
+
+    try {
+      const response = await fetch('/api/tts/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text })
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        const audio = new Audio(data.audio_url)
+        audio.play()
+      }
+    } catch (error) {
+      console.error('TTS error:', error)
+    }
+  }
+
+  // Audio recording functions
+  const startRecording = async () => {
+    try {
+      // Connect WebSocket
+      socketRef.current = new WebSocket("ws://localhost:8000/ws/transcribe")
+      
+      socketRef.current.onopen = () => {
+        setAudioStatus("🎤 Connected - Recording in progress...")
+      }
+
+      socketRef.current.onmessage = (event) => {
+        const data = JSON.parse(event.data)
+        
+        switch (data.type) {
+          case 'chunk_received':
+            setAudioStatus(`Recording... (${data.chunk_count} chunks)`)
+            break
+          case 'processing':
+            setAudioStatus(data.message)
+            setTranscript("🔄 Processing your audio...")
+            break
+          case 'final_transcript':
+            setTranscript(data.text)
+            setAudioStatus("Transcript ready, thinking...")
+            break
+          case 'llm_response':
+            setLlmResponse(data.text)
+            setAudioStatus("✅ Complete! Ready for next question.")
+            speakText(data.text)
+            break
+          case 'error':
+            setAudioStatus(`❌ Error: ${data.message}`)
+            break
+        }
+      }
+
+      // Get microphone access
+      streamRef.current = await navigator.mediaDevices.getUserMedia({ 
+        audio: { sampleRate: 16000, channelCount: 1, echoCancellation: true } 
+      })
+      
+      mediaRecorderRef.current = new MediaRecorder(streamRef.current, { 
+        mimeType: 'audio/webm;codecs=opus' 
+      })
+      
+      mediaRecorderRef.current.ondataavailable = (event) => {
+        if (event.data.size > 0 && socketRef.current?.readyState === WebSocket.OPEN) {
+          event.data.arrayBuffer().then(buffer => socketRef.current.send(buffer))
+        }
+      }
+      
+      mediaRecorderRef.current.start(1000)
+      setIsRecording(true)
+      setTranscript("🎤 Listening... Speak your question now!")
+      setLlmResponse("Waiting for your question...")
+      
+    } catch (error) {
+      setAudioStatus(`❌ Error: ${error.message}`)
+    }
+  }
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop()
+      setIsRecording(false)
+    }
+    
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop())
+      streamRef.current = null
+    }
+    
+    if (socketRef.current?.readyState === WebSocket.OPEN) {
+      socketRef.current.close()
+    }
+    
+    setAudioStatus("🔄 Processing your recording...")
+  }
+
+  // Camera functions
+  const startCamera = async () => {
+    try {
+      cameraStreamRef.current = await navigator.mediaDevices.getUserMedia({ 
+        video: { 
+          width: 640, 
+          height: 480,
+          facingMode: 'environment'
+        } 
+      })
+      
+      if (videoRef.current) {
+        videoRef.current.srcObject = cameraStreamRef.current
+        videoRef.current.play()
+        setCameraActive(true)
+        
+        // Start live detection
+        const detectInterval = setInterval(() => {
+          if (!cameraStreamRef.current) {
+            clearInterval(detectInterval)
+            return
+          }
+          captureFrameForCount()
+        }, 3000)
+      }
+      
+    } catch (error) {
+      console.error('Camera error:', error)
+    }
+  }
+
+  const stopCamera = () => {
+    if (cameraStreamRef.current) {
+      cameraStreamRef.current.getTracks().forEach(track => track.stop())
+      cameraStreamRef.current = null
+    }
+    
+    if (videoRef.current) {
+      videoRef.current.srcObject = null
+    }
+    
+    setCameraActive(false)
+    setAttendanceStats(prev => ({ ...prev, current: 0 }))
+  }
+
+  const captureFrameForCount = async () => {
+    if (!videoRef.current || !canvasRef.current) return
+    
+    try {
+      const ctx = canvasRef.current.getContext('2d')
+      canvasRef.current.width = videoRef.current.videoWidth
+      canvasRef.current.height = videoRef.current.videoHeight
+      ctx.drawImage(videoRef.current, 0, 0)
+      
+      canvasRef.current.toBlob(async (blob) => {
+        const formData = new FormData()
+        formData.append('file', blob, 'live_frame.jpg')
+        
+        try {
+          const response = await fetch('/api/attendance/upload', {
+            method: 'POST',
+            body: formData
+          })
+          
+          if (response.ok) {
+            const data = await response.json()
+            setAttendanceStats(prev => ({ ...prev, current: data.headcount }))
+          }
+        } catch (error) {
+          console.log('Live count update failed:', error)
+        }
+      }, 'image/jpeg', 0.8)
+      
+    } catch (error) {
+      console.error('Frame capture error:', error)
+    }
+  }
+
+  // Load attendance stats
+  const loadAttendanceStats = async () => {
+    try {
+      const response = await fetch('/api/attendance/stats')
+      const data = await response.json()
+      
+      setAttendanceStats({
+        current: attendanceStats.current,
+        average: Math.round(data.average_attendance),
+        maximum: data.max_attendance,
+        records: data.total_records
+      })
+    } catch (error) {
+      console.error('Stats error:', error)
+    }
+  }
+
+  // Load stats on component mount
+  useEffect(() => {
+    loadAttendanceStats()
+  }, [])
+
+  // Render different tab contents
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case "overview":
+        return (
+          <div className="space-y-6">
+            <h2 className="text-3xl font-bold text-white mb-6">Dashboard Overview</h2>
+            
+            {/* Stats Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-6 rounded-lg">
+                <div className="text-white">
+                  <p className="text-sm opacity-80">Current Attendance</p>
+                  <p className="text-3xl font-bold">{attendanceStats.current}</p>
+                </div>
+              </div>
+              <div className="bg-gradient-to-r from-green-600 to-green-700 p-6 rounded-lg">
+                <div className="text-white">
+                  <p className="text-sm opacity-80">Average Attendance</p>
+                  <p className="text-3xl font-bold">{attendanceStats.average}</p>
+                </div>
+              </div>
+              <div className="bg-gradient-to-r from-purple-600 to-purple-700 p-6 rounded-lg">
+                <div className="text-white">
+                  <p className="text-sm opacity-80">Maximum Attendance</p>
+                  <p className="text-3xl font-bold">{attendanceStats.maximum}</p>
+                </div>
+              </div>
+              <div className="bg-gradient-to-r from-orange-600 to-orange-700 p-6 rounded-lg">
+                <div className="text-white">
+                  <p className="text-sm opacity-80">Total Records</p>
+                  <p className="text-3xl font-bold">{attendanceStats.records}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Actions */}
+            <div className="bg-gray-800 p-6 rounded-lg">
+              <h3 className="text-xl font-semibold text-white mb-4">Quick Actions</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <button 
+                  onClick={() => setActiveTab("attendance")}
+                  className="bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-lg transition-colors flex items-center gap-2"
+                >
+                  <Camera className="w-5 h-5" />
+                  Start Attendance
+                </button>
+                <button 
+                  onClick={() => setActiveTab("assistant")}
+                  className="bg-green-600 hover:bg-green-700 text-white p-4 rounded-lg transition-colors flex items-center gap-2"
+                >
+                  <Mic className="w-5 h-5" />
+                  AI Assistant
+                </button>
+                <button 
+                  onClick={() => setActiveTab("knowledge")}
+                  className="bg-purple-600 hover:bg-purple-700 text-white p-4 rounded-lg transition-colors flex items-center gap-2"
+                >
+                  <BookOpen className="w-5 h-5" />
+                  Manage Knowledge
+                </button>
+              </div>
+            </div>
+          </div>
+        )
+
+      case "attendance":
+        return (
+          <div className="space-y-6">
+            <h2 className="text-3xl font-bold text-white mb-6">Live Attendance Tracking</h2>
+            
+            {/* Camera Controls */}
+            <div className="bg-gray-800 p-6 rounded-lg">
+              <h3 className="text-xl font-semibold text-white mb-4">📷 Live Camera</h3>
+              <div className="flex gap-4 mb-6">
+                <button
+                  onClick={startCamera}
+                  disabled={cameraActive}
+                  className="bg-green-600 hover:bg-green-700 disabled:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2"
+                >
+                  <Camera className="w-4 h-4" />
+                  Start Camera
+                </button>
+                <button
+                  onClick={stopCamera}
+                  disabled={!cameraActive}
+                  className="bg-red-600 hover:bg-red-700 disabled:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2"
+                >
+                  <Square className="w-4 h-4" />
+                  Stop Camera
+                </button>
+              </div>
+              
+              <div className="flex gap-6">
+                <div>
+                  <video 
+                    ref={videoRef}
+                    width="320" 
+                    height="240" 
+                    className="border-2 border-gray-600 rounded-lg"
+                    style={{ display: cameraActive ? 'block' : 'none' }}
+                  />
+                  <canvas 
+                    ref={canvasRef}
+                    width="320" 
+                    height="240" 
+                    className="border-2 border-gray-600 rounded-lg hidden"
+                  />
+                </div>
+                <div className="flex-1">
+                  <div className="text-white">
+                    <p className="text-sm text-gray-400">Camera Status:</p>
+                    <p className={`font-semibold ${cameraActive ? 'text-green-400' : 'text-gray-400'}`}>
+                      {cameraActive ? '📷 Camera Active' : 'Camera Stopped'}
+                    </p>
+                  </div>
+                  <div className="mt-4">
+                    <p className="text-2xl font-bold text-blue-400">
+                      Live Count: {attendanceStats.current}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* File Upload */}
+            <div className="bg-gray-800 p-6 rounded-lg">
+              <h3 className="text-xl font-semibold text-white mb-4">📤 Upload Image for Attendance</h3>
+              <div className="border-2 border-dashed border-gray-600 p-6 rounded-lg text-center">
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  className="mb-4 text-white"
+                />
+                <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
+                  📊 Count Students from Image
+                </button>
+              </div>
+            </div>
+          </div>
+        )
+
+      case "assistant":
+        return (
+          <div className="space-y-6">
+            <h2 className="text-3xl font-bold text-white mb-6">AI Class Assistant</h2>
+            
+            {/* Audio Settings */}
+            <div className="bg-gray-800 p-6 rounded-lg">
+              <h3 className="text-xl font-semibold text-white mb-4">🔊 Audio Settings</h3>
+              <div className="flex items-center gap-4 mb-4">
+                <label className="flex items-center gap-2 text-white">
+                  <input 
+                    type="checkbox" 
+                    checked={autoTTS}
+                    onChange={(e) => setAutoTTS(e.target.checked)}
+                    className="rounded"
+                  />
+                  Automatic Speech Output
+                </label>
+                <button 
+                  onClick={() => speakText("Hello! I'm SAGE, your smart classroom assistant.")}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded flex items-center gap-2"
+                >
+                  {autoTTS ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+                  Test Speaker
+                </button>
+              </div>
+            </div>
+
+            {/* Voice Assistant */}
+            <div className="bg-gray-800 p-6 rounded-lg">
+              <h3 className="text-xl font-semibold text-white mb-4">🎤 Voice Assistant</h3>
+              <div className="flex gap-4 mb-4">
+                <button
+                  onClick={startRecording}
+                  disabled={isRecording}
+                  className={`px-6 py-3 rounded-lg transition-colors flex items-center gap-2 ${
+                    isRecording 
+                      ? 'bg-red-600 animate-pulse' 
+                      : 'bg-green-600 hover:bg-green-700'
+                  } text-white`}
+                >
+                  <Mic className="w-4 h-4" />
+                  {isRecording ? 'Recording...' : 'Start Listening'}
+                </button>
+                <button
+                  onClick={stopRecording}
+                  disabled={!isRecording}
+                  className="bg-red-600 hover:bg-red-700 disabled:bg-gray-600 text-white px-6 py-3 rounded-lg transition-colors flex items-center gap-2"
+                >
+                  <Square className="w-4 h-4" />
+                  Stop & Process
+                </button>
+              </div>
+              
+              <div className="text-sm text-gray-400 mb-4">
+                Status: {audioStatus}
+              </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <h4 className="text-white font-semibold mb-2">📝 Student Question:</h4>
+                  <div className="bg-gray-700 p-4 rounded border min-h-[80px] text-gray-300">
+                    {transcript}
+                  </div>
+                </div>
+                
+                <div>
+                  <h4 className="text-white font-semibold mb-2">🤖 SAGE Response:</h4>
+                  <div className="bg-blue-900/30 p-4 rounded border min-h-[80px] text-gray-300">
+                    {llmResponse}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Text Query */}
+            <div className="bg-gray-800 p-6 rounded-lg">
+              <h3 className="text-xl font-semibold text-white mb-4">💬 Text Query</h3>
+              <textarea 
+                placeholder="Ask SAGE anything about the course material..."
+                rows="3"
+                className="w-full p-4 bg-gray-700 text-white rounded border border-gray-600 resize-none"
+              />
+              <button className="mt-4 bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg transition-colors">
+                💬 Ask SAGE
+              </button>
+            </div>
+
+            {/* Image Analysis */}
+            <div className="bg-gray-800 p-6 rounded-lg">
+              <h3 className="text-xl font-semibold text-white mb-4">📸 Image Analysis</h3>
+              <div className="border-2 border-dashed border-gray-600 p-6 rounded-lg">
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  className="mb-4 text-white"
+                />
+                <textarea 
+                  placeholder="What would you like to know about this image?"
+                  rows="2"
+                  className="w-full p-3 bg-gray-700 text-white rounded border border-gray-600 resize-none mb-4"
+                  defaultValue="What information can you extract from this image?"
+                />
+                <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2">
+                  <ImageIcon className="w-4 h-4" />
+                  Analyze Image
+                </button>
+              </div>
+            </div>
+          </div>
+        )
+
+      case "knowledge":
+        return (
+          <div className="space-y-6">
+            <h2 className="text-3xl font-bold text-white mb-6">Knowledge Base Management</h2>
+            
+            <div className="bg-gray-800 p-6 rounded-lg">
+              <h3 className="text-xl font-semibold text-white mb-4">📚 Upload Documents</h3>
+              <div className="border-2 border-dashed border-gray-600 p-8 rounded-lg text-center">
+                <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                <input 
+                  type="file" 
+                  accept=".pdf"
+                  className="mb-4 text-white"
+                />
+                <p className="text-gray-400 mb-4">Upload PDF documents to add to the knowledge base</p>
+                <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors">
+                  📤 Upload PDF to Knowledge Base
+                </button>
+              </div>
+              
+              <div className="mt-4 text-sm text-gray-400">
+                Status: Ready to upload documents
+              </div>
+            </div>
+
+            {/* Knowledge Base Stats */}
+            <div className="bg-gray-800 p-6 rounded-lg">
+              <h3 className="text-xl font-semibold text-white mb-4">📊 Knowledge Base Statistics</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-gray-700 p-4 rounded-lg">
+                  <p className="text-gray-400 text-sm">Total Documents</p>
+                  <p className="text-2xl font-bold text-white">0</p>
+                </div>
+                <div className="bg-gray-700 p-4 rounded-lg">
+                  <p className="text-gray-400 text-sm">Last Updated</p>
+                  <p className="text-white">Never</p>
+                </div>
+                <div className="bg-gray-700 p-4 rounded-lg">
+                  <p className="text-gray-400 text-sm">Total Queries</p>
+                  <p className="text-2xl font-bold text-white">0</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+
+      case "analytics":
+        return (
+          <div className="space-y-6">
+            <h2 className="text-3xl font-bold text-white mb-6">Analytics & Reports</h2>
+            
+            {/* Attendance Analytics */}
+            <div className="bg-gray-800 p-6 rounded-lg">
+              <h3 className="text-xl font-semibold text-white mb-4">📈 Attendance Analytics</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="bg-blue-600 p-4 rounded-lg text-center">
+                  <p className="text-2xl font-bold text-white">{attendanceStats.current}</p>
+                  <p className="text-blue-200 text-sm">Current</p>
+                </div>
+                <div className="bg-green-600 p-4 rounded-lg text-center">
+                  <p className="text-2xl font-bold text-white">{attendanceStats.average}</p>
+                  <p className="text-green-200 text-sm">Average</p>
+                </div>
+                <div className="bg-purple-600 p-4 rounded-lg text-center">
+                  <p className="text-2xl font-bold text-white">{attendanceStats.maximum}</p>
+                  <p className="text-purple-200 text-sm">Maximum</p>
+                </div>
+                <div className="bg-orange-600 p-4 rounded-lg text-center">
+                  <p className="text-2xl font-bold text-white">{attendanceStats.records}</p>
+                  <p className="text-orange-200 text-sm">Records</p>
+                </div>
+              </div>
+              
+              <button 
+                onClick={loadAttendanceStats}
+                className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
+              >
+                📈 Refresh Statistics
+              </button>
+            </div>
+
+            {/* Usage Analytics */}
+            <div className="bg-gray-800 p-6 rounded-lg">
+              <h3 className="text-xl font-semibold text-white mb-4">💬 Usage Analytics</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-gray-700 p-4 rounded-lg">
+                  <p className="text-gray-400 text-sm">Voice Queries</p>
+                  <p className="text-2xl font-bold text-white">0</p>
+                </div>
+                <div className="bg-gray-700 p-4 rounded-lg">
+                  <p className="text-gray-400 text-sm">Text Queries</p>
+                  <p className="text-2xl font-bold text-white">0</p>
+                </div>
+                <div className="bg-gray-700 p-4 rounded-lg">
+                  <p className="text-gray-400 text-sm">Image Analysis</p>
+                  <p className="text-2xl font-bold text-white">0</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+
+      case "settings":
+        return (
+          <div className="space-y-6">
+            <h2 className="text-3xl font-bold text-white mb-6">Settings & Configuration</h2>
+            
+            {/* Audio Settings */}
+            <div className="bg-gray-800 p-6 rounded-lg">
+              <h3 className="text-xl font-semibold text-white mb-4">🔊 Audio Configuration</h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-gray-400 text-sm mb-2">Voice Speed (WPM)</label>
+                  <input 
+                    type="range" 
+                    min="50" 
+                    max="300" 
+                    defaultValue="180"
+                    className="w-full"
+                  />
+                  <div className="text-right text-gray-400 text-sm">180 WPM</div>
+                </div>
+                <div>
+                  <label className="block text-gray-400 text-sm mb-2">Volume</label>
+                  <input 
+                    type="range" 
+                    min="0" 
+                    max="100" 
+                    defaultValue="90"
+                    className="w-full"
+                  />
+                  <div className="text-right text-gray-400 text-sm">90%</div>
+                </div>
+              </div>
+            </div>
+
+            {/* System Settings */}
+            <div className="bg-gray-800 p-6 rounded-lg">
+              <h3 className="text-xl font-semibold text-white mb-4">⚙️ System Settings</h3>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-white">Auto-TTS</span>
+                  <input 
+                    type="checkbox" 
+                    checked={autoTTS}
+                    onChange={(e) => setAutoTTS(e.target.checked)}
+                    className="rounded"
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-white">Live Attendance Updates</span>
+                  <input type="checkbox" defaultChecked className="rounded" />
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-white">Voice Assistant</span>
+                  <input type="checkbox" defaultChecked className="rounded" />
+                </div>
+              </div>
+            </div>
+
+            {/* Account Settings */}
+            <div className="bg-gray-800 p-6 rounded-lg">
+              <h3 className="text-xl font-semibold text-white mb-4">👤 Account Settings</h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-gray-400 text-sm mb-2">Display Name</label>
+                  <input 
+                    type="text" 
+                    defaultValue="Teacher"
+                    className="w-full p-3 bg-gray-700 text-white rounded border border-gray-600"
+                  />
+                </div>
+                <div>
+                  <label className="block text-gray-400 text-sm mb-2">Role</label>
+                  <select className="w-full p-3 bg-gray-700 text-white rounded border border-gray-600">
+                    <option value="teacher">Teacher</option>
+                    <option value="admin">Administrator</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+
+      default:
+        return <div className="text-white">Content not found</div>
+    }
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-900 flex">
+      {/* Sidebar */}
+      <div className="w-64 bg-gray-800 border-r border-gray-700">
+        <div className="p-6">
+          <h1 className="text-2xl font-bold text-white">SAGE Teacher</h1>
+          <p className="text-gray-400 text-sm">Smart AI Tutor Dashboard</p>
+        </div>
+        
+        <nav className="mt-8">
+          {navItems.map((item) => {
+            const Icon = item.icon
+            return (
+              <button
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
+                className={`w-full flex items-center gap-3 px-6 py-3 text-left transition-colors ${
+                  activeTab === item.id
+                    ? 'bg-blue-600 text-white'
+                    : 'text-gray-400 hover:text-white hover:bg-gray-700'
+                }`}
+              >
+                <Icon className="w-5 h-5" />
+                {item.label}
+              </button>
+            )
+          })}
+          
+          <button
+            onClick={onLogout}
+            className="w-full flex items-center gap-3 px-6 py-3 text-left text-gray-400 hover:text-white hover:bg-gray-700 transition-colors mt-8"
+          >
+            <LogOut className="w-5 h-5" />
+            Logout
+          </button>
+        </nav>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="p-8">
+          {renderTabContent()}
+        </div>
+      </div>
+    </div>
+  )
+}
