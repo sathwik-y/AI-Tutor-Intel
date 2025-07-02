@@ -15,7 +15,8 @@ import {
   Play,
   Square,
   Volume2,
-  VolumeX
+  VolumeX,
+  Send
 } from "lucide-react"
 
 export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
@@ -34,6 +35,13 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
   const [transcript, setTranscript] = useState("Transcript will appear here...")
   const [llmResponse, setLlmResponse] = useState("Response will appear here...")
   const [audioStatus, setAudioStatus] = useState("Ready to listen...")
+  
+  // Text and Image states
+  const [textQuery, setTextQuery] = useState("")
+  const [textResponse, setTextResponse] = useState("")
+  const [imageQuery, setImageQuery] = useState("What information can you extract from this image?")
+  const [imageResponse, setImageResponse] = useState("")
+  const [uploadStatus, setUploadStatus] = useState("")
   
   // Camera refs
   const videoRef = useRef(null)
@@ -153,6 +161,81 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
     }
     
     setAudioStatus("🔄 Processing your recording...")
+  }
+
+  // Text query function - ADDED to match client.html
+  const submitTextQuery = async () => {
+    if (!textQuery.trim()) return
+
+    try {
+      const response = await fetch('/api/query/text', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: textQuery })
+      })
+
+      const data = await response.json()
+      setTextResponse(data.answer)
+      speakText(data.answer)
+      
+    } catch (error) {
+      setTextResponse(`Error: ${error.message}`)
+    }
+  }
+
+  // Image analysis function - ADDED to match client.html
+  const analyzeImage = async () => {
+    const fileInput = document.getElementById('teacherImageFile')
+    
+    if (!fileInput?.files[0]) {
+      alert("Please select an image file first!")
+      return
+    }
+
+    const formData = new FormData()
+    formData.append('file', fileInput.files[0])
+    formData.append('query', imageQuery)
+
+    try {
+      const response = await fetch('/api/query/image', {
+        method: 'POST',
+        body: formData
+      })
+
+      const data = await response.json()
+      setImageResponse(data.answer)
+      speakText(data.answer)
+      
+    } catch (error) {
+      setImageResponse(`Error: ${error.message}`)
+    }
+  }
+
+  // PDF upload function - ADDED to match client.html
+  const uploadPDF = async () => {
+    const fileInput = document.getElementById('teacherPdfFile')
+    if (!fileInput?.files[0]) {
+      alert("Please select a PDF file first!")
+      return
+    }
+
+    const formData = new FormData()
+    formData.append('file', fileInput.files[0])
+
+    try {
+      setUploadStatus('Uploading and processing PDF...')
+      
+      const response = await fetch('/api/upload-pdf', {
+        method: 'POST',
+        body: formData
+      })
+
+      const data = await response.json()
+      setUploadStatus(`✅ ${data.status}`)
+      
+    } catch (error) {
+      setUploadStatus(`❌ Error: ${error.message}`)
+    }
   }
 
   // Camera functions
@@ -475,35 +558,71 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
             {/* Text Query */}
             <div className="bg-gray-800 p-6 rounded-lg">
               <h3 className="text-xl font-semibold text-white mb-4">💬 Text Query</h3>
-              <textarea 
-                placeholder="Ask SAGE anything about the course material..."
-                rows="3"
-                className="w-full p-4 bg-gray-700 text-white rounded border border-gray-600 resize-none"
-              />
-              <button className="mt-4 bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg transition-colors">
-                💬 Ask SAGE
-              </button>
+              <div className="flex gap-4">
+                <textarea 
+                  value={textQuery}
+                  onChange={(e) => setTextQuery(e.target.value)}
+                  placeholder="Ask SAGE anything about the course material..."
+                  rows="3"
+                  className="flex-1 p-4 bg-gray-700 text-white rounded border border-gray-600 resize-none focus:border-purple-500 focus:outline-none"
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault()
+                      submitTextQuery()
+                    }
+                  }}
+                />
+                <button 
+                  onClick={submitTextQuery}
+                  className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg transition-colors flex items-center gap-2 self-start"
+                >
+                  <Send className="w-4 h-4" />
+                  Ask
+                </button>
+              </div>
+              
+              {textResponse && (
+                <div className="mt-4 p-4 bg-purple-900/30 rounded border">
+                  <h4 className="text-white font-semibold mb-2">🤖 Answer:</h4>
+                  <div className="text-gray-300">{textResponse}</div>
+                </div>
+              )}
             </div>
 
             {/* Image Analysis */}
             <div className="bg-gray-800 p-6 rounded-lg">
               <h3 className="text-xl font-semibold text-white mb-4">📸 Image Analysis</h3>
-              <div className="border-2 border-dashed border-gray-600 p-6 rounded-lg">
-                <input 
-                  type="file" 
-                  accept="image/*" 
-                  className="mb-4 text-white"
-                />
+              <div className="space-y-4">
+                <div className="border-2 border-dashed border-gray-600 p-6 rounded-lg text-center">
+                  <ImageIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <input 
+                    id="teacherImageFile"
+                    type="file" 
+                    accept="image/*" 
+                    className="mb-4 text-white"
+                  />
+                  <p className="text-gray-400 mb-4">Upload an image and ask questions about it</p>
+                </div>
                 <textarea 
+                  value={imageQuery}
+                  onChange={(e) => setImageQuery(e.target.value)}
                   placeholder="What would you like to know about this image?"
                   rows="2"
-                  className="w-full p-3 bg-gray-700 text-white rounded border border-gray-600 resize-none mb-4"
-                  defaultValue="What information can you extract from this image?"
+                  className="w-full p-3 bg-gray-700 text-white rounded border border-gray-600 resize-none focus:border-green-500 focus:outline-none"
                 />
-                <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2">
+                <button 
+                  onClick={analyzeImage}
+                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg transition-colors flex items-center gap-2"
+                >
                   <ImageIcon className="w-4 h-4" />
                   Analyze Image
                 </button>
+                {imageResponse && (
+                  <div className="p-4 bg-green-900/30 rounded border">
+                    <h4 className="text-white font-semibold mb-2">🔍 Analysis:</h4>
+                    <div className="text-gray-300">{imageResponse}</div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -519,18 +638,22 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
               <div className="border-2 border-dashed border-gray-600 p-8 rounded-lg text-center">
                 <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                 <input 
+                  id="teacherPdfFile"
                   type="file" 
                   accept=".pdf"
                   className="mb-4 text-white"
                 />
                 <p className="text-gray-400 mb-4">Upload PDF documents to add to the knowledge base</p>
-                <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors">
+                <button 
+                  onClick={uploadPDF}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors"
+                >
                   📤 Upload PDF to Knowledge Base
                 </button>
               </div>
               
               <div className="mt-4 text-sm text-gray-400">
-                Status: Ready to upload documents
+                {uploadStatus || "Status: Ready to upload documents"}
               </div>
             </div>
 
@@ -614,43 +737,13 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
       case "settings":
         return (
           <div className="space-y-6">
-            <h2 className="text-3xl font-bold text-white mb-6">Settings & Configuration</h2>
+            <h2 className="text-3xl font-bold text-white mb-6">Settings</h2>
             
-            {/* Audio Settings */}
-            <div className="bg-gray-800 p-6 rounded-lg">
-              <h3 className="text-xl font-semibold text-white mb-4">🔊 Audio Configuration</h3>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-gray-400 text-sm mb-2">Voice Speed (WPM)</label>
-                  <input 
-                    type="range" 
-                    min="50" 
-                    max="300" 
-                    defaultValue="180"
-                    className="w-full"
-                  />
-                  <div className="text-right text-gray-400 text-sm">180 WPM</div>
-                </div>
-                <div>
-                  <label className="block text-gray-400 text-sm mb-2">Volume</label>
-                  <input 
-                    type="range" 
-                    min="0" 
-                    max="100" 
-                    defaultValue="90"
-                    className="w-full"
-                  />
-                  <div className="text-right text-gray-400 text-sm">90%</div>
-                </div>
-              </div>
-            </div>
-
-            {/* System Settings */}
             <div className="bg-gray-800 p-6 rounded-lg">
               <h3 className="text-xl font-semibold text-white mb-4">⚙️ System Settings</h3>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-white">Auto-TTS</span>
+                  <span className="text-white">Auto-speak responses</span>
                   <input 
                     type="checkbox" 
                     checked={autoTTS}
@@ -659,34 +752,18 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
                   />
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-white">Live Attendance Updates</span>
-                  <input type="checkbox" defaultChecked className="rounded" />
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-white">Voice Assistant</span>
-                  <input type="checkbox" defaultChecked className="rounded" />
-                </div>
-              </div>
-            </div>
-
-            {/* Account Settings */}
-            <div className="bg-gray-800 p-6 rounded-lg">
-              <h3 className="text-xl font-semibold text-white mb-4">👤 Account Settings</h3>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-gray-400 text-sm mb-2">Display Name</label>
+                  <span className="text-white">Camera auto-start</span>
                   <input 
-                    type="text" 
-                    defaultValue="Teacher"
-                    className="w-full p-3 bg-gray-700 text-white rounded border border-gray-600"
+                    type="checkbox" 
+                    className="rounded"
                   />
                 </div>
-                <div>
-                  <label className="block text-gray-400 text-sm mb-2">Role</label>
-                  <select className="w-full p-3 bg-gray-700 text-white rounded border border-gray-600">
-                    <option value="teacher">Teacher</option>
-                    <option value="admin">Administrator</option>
-                  </select>
+                <div className="flex items-center justify-between">
+                  <span className="text-white">Attendance notifications</span>
+                  <input 
+                    type="checkbox" 
+                    className="rounded"
+                  />
                 </div>
               </div>
             </div>
@@ -704,7 +781,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
       <div className="w-64 bg-gray-800 border-r border-gray-700">
         <div className="p-6">
           <h1 className="text-2xl font-bold text-white">SAGE Teacher</h1>
-          <p className="text-gray-400 text-sm">Smart AI Tutor Dashboard</p>
+          <p className="text-gray-400 text-sm">Smart AI Learning Portal</p>
         </div>
         
         <nav className="mt-8">

@@ -60,7 +60,7 @@ function App() {
       <div className="relative z-10 flex flex-col min-h-screen">
         
         <header className="w-full p-4 md:p-6">
-          <h1 className="text-2xl md:text-3xl font-bold text-white">Smart AI Tutor</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-white">SAGE</h1>
         </header>
 
         <main className="flex-1 flex flex-col items-center justify-center p-4">
@@ -90,7 +90,7 @@ function App() {
 
         {/* Footer */}
         <footer className="w-full p-4 text-center text-gray-400">
-          <p>© {new Date().getFullYear()} Smart AI Tutor. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} SAGE. All rights reserved.</p>
         </footer>
       </div>
     </div>

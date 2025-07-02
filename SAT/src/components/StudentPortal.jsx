@@ -173,11 +173,14 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
     }
   }
 
-  // Image analysis function
+  // Image analysis function - FIXED to match client.html
   const analyzeImage = async () => {
     const fileInput = document.getElementById('imageFile')
     
-    if (!fileInput?.files[0]) return
+    if (!fileInput?.files[0]) {
+      alert("Please select an image file first!")
+      return
+    }
 
     const formData = new FormData()
     formData.append('file', fileInput.files[0])
@@ -214,10 +217,13 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
     setLearningHistory(prev => [newEntry, ...prev.slice(0, 49)]) // Keep last 50 entries
   }
 
-  // Upload contribution
+  // Upload contribution - FIXED to match client.html
   const uploadContribution = async () => {
     const fileInput = document.getElementById('contributionFile')
-    if (!fileInput?.files[0]) return
+    if (!fileInput?.files[0]) {
+      alert("Please select a PDF file first!")
+      return
+    }
 
     const formData = new FormData()
     formData.append('file', fileInput.files[0])
@@ -370,7 +376,6 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
                   />
                   <p className="text-gray-400 mb-4">Upload an image and ask questions about it</p>
                 </div>
-                
                 <textarea 
                   value={imageQuery}
                   onChange={(e) => setImageQuery(e.target.value)}
@@ -378,7 +383,6 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
                   rows="2"
                   className="w-full p-3 bg-gray-700 text-white rounded border border-gray-600 resize-none focus:border-green-500 focus:outline-none"
                 />
-                
                 <button 
                   onClick={analyzeImage}
                   className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg transition-colors flex items-center gap-2"
@@ -386,7 +390,6 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
                   <ImageIcon className="w-4 h-4" />
                   Analyze Image
                 </button>
-                
                 {imageResponse && (
                   <div className="p-4 bg-green-900/30 rounded border">
                     <h4 className="text-white font-semibold mb-2">🔍 Analysis:</h4>
@@ -509,7 +512,7 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
               <div className="border-2 border-dashed border-gray-600 p-8 rounded-lg text-center">
                 <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                 <input 
-                  id="contributionFile"
+                  id="teacherPdfFile"
                   type="file" 
                   accept=".pdf"
                   className="mb-4 text-white"
@@ -519,9 +522,9 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
                 </p>
                 <button 
                   onClick={uploadContribution}
-                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg transition-colors"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors"
                 >
-                  📤 Upload Document
+                  📤 Upload PDF to Knowledge Base
                 </button>
               </div>
               
