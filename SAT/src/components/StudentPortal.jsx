@@ -52,7 +52,7 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
     if (!autoTTS || !text) return
 
     try {
-      const response = await fetch('/api/tts/generate', {
+      const response = await fetch('http://localhost:8000/api/tts/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text })
@@ -155,12 +155,17 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
     if (!textQuery.trim()) return
 
     try {
-      const response = await fetch('/api/query/text', {
+      const response = await fetch('http://localhost:8000/api/query/text', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: textQuery })
       })
 
+      if (!response.ok) {
+        const errorText = await response.text()
+        setTextResponse(`Error: ${errorText}`)
+        return
+      }
       const data = await response.json()
       setTextResponse(data.answer)
       speakText(data.answer)
@@ -187,11 +192,16 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
     formData.append('query', imageQuery)
 
     try {
-      const response = await fetch('/api/query/image', {
+      const response = await fetch('http://localhost:8000/api/query/image', {
         method: 'POST',
         body: formData
       })
 
+      if (!response.ok) {
+        const errorText = await response.text()
+        setImageResponse(`Error: ${errorText}`)
+        return
+      }
       const data = await response.json()
       setImageResponse(data.answer)
       speakText(data.answer)
@@ -229,7 +239,7 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
     formData.append('file', fileInput.files[0])
 
     try {
-      const response = await fetch('/api/upload-pdf', {
+      const response = await fetch('http://localhost:8000/api/upload-pdf', {
         method: 'POST',
         body: formData
       })

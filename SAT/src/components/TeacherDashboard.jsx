@@ -68,7 +68,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
     if (!autoTTS || !text) return
 
     try {
-      const response = await fetch('/api/tts/generate', {
+      const response = await fetch('http://localhost:8000/api/tts/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text })
@@ -168,12 +168,17 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
     if (!textQuery.trim()) return
 
     try {
-      const response = await fetch('/api/query/text', {
+      const response = await fetch('http://localhost:8000/api/query/text', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: textQuery })
       })
 
+      if (!response.ok) {
+        const errorText = await response.text()
+        setTextResponse(`Error: ${errorText}`)
+        return
+      }
       const data = await response.json()
       setTextResponse(data.answer)
       speakText(data.answer)
@@ -197,11 +202,16 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
     formData.append('query', imageQuery)
 
     try {
-      const response = await fetch('/api/query/image', {
+      const response = await fetch('http://localhost:8000/api/query/image', {
         method: 'POST',
         body: formData
       })
 
+      if (!response.ok) {
+        const errorText = await response.text()
+        setImageResponse(`Error: ${errorText}`)
+        return
+      }
       const data = await response.json()
       setImageResponse(data.answer)
       speakText(data.answer)
@@ -225,7 +235,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
     try {
       setUploadStatus('Uploading and processing PDF...')
       
-      const response = await fetch('/api/upload-pdf', {
+      const response = await fetch('http://localhost:8000/api/upload-pdf', {
         method: 'POST',
         body: formData
       })
@@ -297,7 +307,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
         formData.append('file', blob, 'live_frame.jpg')
         
         try {
-          const response = await fetch('/api/attendance/upload', {
+          const response = await fetch('http://localhost:8000/api/attendance/upload', {
             method: 'POST',
             body: formData
           })
@@ -319,7 +329,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
   // Load attendance stats
   const loadAttendanceStats = async () => {
     try {
-      const response = await fetch('/api/attendance/stats')
+      const response = await fetch('http://localhost:8000/api/attendance/stats')
       const data = await response.json()
       
       setAttendanceStats({
