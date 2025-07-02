@@ -53,6 +53,9 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
   const mediaRecorderRef = useRef(null)
   const streamRef = useRef(null)
 
+  // TTS Audio ref
+  const currentAudioRef = useRef(null)
+
   // Navigation items
   const navItems = [
     { id: "overview", label: "Overview", icon: Home },
@@ -68,16 +71,43 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
     if (!autoTTS || !text) return
 
     try {
+      // Stop any currently playing audio
+      if (currentAudioRef.current) {
+        currentAudioRef.current.pause()
+        currentAudioRef.current = null
+      }
+
       const response = await fetch('http://localhost:8000/api/tts/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text })
+        body: JSON.stringify({ text: text })
       })
 
       if (response.ok) {
         const data = await response.json()
-        const audio = new Audio(data.audio_url)
-        audio.play()
+        
+        // Construct the full URL for the audio file
+        const audioUrl = data.audio_url.startsWith('http') 
+          ? data.audio_url 
+          : `http://localhost:8000${data.audio_url}`
+        
+        // Play the generated audio
+        currentAudioRef.current = new Audio(audioUrl)
+        
+        currentAudioRef.current.oncanplay = () => {
+          currentAudioRef.current.play().catch(error => {
+            console.error('Audio play error:', error)
+          })
+        }
+        
+        currentAudioRef.current.onerror = (error) => {
+          console.error('Audio error:', error)
+        }
+        
+      } else {
+        console.error('TTS failed:', response.status)
+        const errorText = await response.text()
+        console.error('TTS error details:', errorText)
       }
     } catch (error) {
       console.error('TTS error:', error)
@@ -163,7 +193,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
     setAudioStatus("🔄 Processing your recording...")
   }
 
-  // Text query function - ADDED to match client.html
+  // Text query function
   const submitTextQuery = async () => {
     if (!textQuery.trim()) return
 
@@ -179,6 +209,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
         setTextResponse(`Error: ${errorText}`)
         return
       }
+      
       const data = await response.json()
       setTextResponse(data.answer)
       speakText(data.answer)
@@ -188,7 +219,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
     }
   }
 
-  // Image analysis function - ADDED to match client.html
+  // Image analysis function
   const analyzeImage = async () => {
     const fileInput = document.getElementById('teacherImageFile')
     
@@ -212,6 +243,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
         setImageResponse(`Error: ${errorText}`)
         return
       }
+      
       const data = await response.json()
       setImageResponse(data.answer)
       speakText(data.answer)
@@ -221,7 +253,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
     }
   }
 
-  // PDF upload function - ADDED to match client.html
+  // PDF upload function
   const uploadPDF = async () => {
     const fileInput = document.getElementById('teacherPdfFile')
     if (!fileInput?.files[0]) {
@@ -343,9 +375,17 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
     }
   }
 
-  // Load stats on component mount
+  // Load stats on component mount and cleanup
   useEffect(() => {
     loadAttendanceStats()
+    
+    return () => {
+      // Cleanup audio on unmount
+      if (currentAudioRef.current) {
+        currentAudioRef.current.pause()
+        currentAudioRef.current = null
+      }
+    }
   }, [])
 
   // Render different tab contents

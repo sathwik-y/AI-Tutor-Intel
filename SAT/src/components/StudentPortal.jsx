@@ -24,10 +24,11 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
   const [textQuery, setTextQuery] = useState("")
   const [imageQuery, setImageQuery] = useState("What information can you extract from this image?")
   
-  // Audio states
+  // Audio states - ADD TTS status
   const [transcript, setTranscript] = useState("Transcript will appear here...")
   const [llmResponse, setLlmResponse] = useState("Response will appear here...")
   const [audioStatus, setAudioStatus] = useState("Ready to listen...")
+  const [ttsStatus, setTtsStatus] = useState("Auto-TTS enabled")
   const [textResponse, setTextResponse] = useState("")
   const [imageResponse, setImageResponse] = useState("")
   
@@ -38,6 +39,9 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
   const socketRef = useRef(null)
   const mediaRecorderRef = useRef(null)
   const streamRef = useRef(null)
+  
+  // TTS Audio ref
+  const currentAudioRef = useRef(null)
 
   // Navigation items for students
   const navItems = [
@@ -47,24 +51,66 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
     { id: "contribute", label: "Contribute", icon: Upload }
   ]
 
-  // Auto-speak function
+  // Auto-speak function - FIXED to handle audio URL properly
   const speakText = async (text) => {
     if (!autoTTS || !text) return
 
     try {
+      // Stop any currently playing audio
+      if (currentAudioRef.current) {
+        currentAudioRef.current.pause()
+        currentAudioRef.current = null
+      }
+
+      setTtsStatus('Generating speech...')
+      
       const response = await fetch('http://localhost:8000/api/tts/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text })
+        body: JSON.stringify({ text: text })
       })
 
       if (response.ok) {
         const data = await response.json()
-        const audio = new Audio(data.audio_url)
-        audio.play()
+        
+        // Construct the full URL for the audio file
+        const audioUrl = data.audio_url.startsWith('http') 
+          ? data.audio_url 
+          : `http://localhost:8000${data.audio_url}`
+        
+        // Play the generated audio
+        currentAudioRef.current = new Audio(audioUrl)
+        
+        currentAudioRef.current.onloadstart = () => {
+          setTtsStatus('🔊 Loading audio...')
+        }
+        
+        currentAudioRef.current.oncanplay = () => {
+          setTtsStatus('🔊 Speaking...')
+          currentAudioRef.current.play().catch(error => {
+            console.error('Audio play error:', error)
+            setTtsStatus('Audio playback error')
+          })
+        }
+        
+        currentAudioRef.current.onended = () => {
+          setTtsStatus('Ready for next response')
+        }
+        
+        currentAudioRef.current.onerror = (error) => {
+          console.error('Audio error:', error)
+          setTtsStatus('Audio playback error')
+        }
+        
+      } else {
+        console.error('TTS failed:', response.status)
+        const errorText = await response.text()
+        console.error('TTS error details:', errorText)
+        setTtsStatus('TTS error')
       }
     } catch (error) {
       console.error('TTS error:', error)
+      setTtsStatus('TTS unavailable')
     }
   }
 
@@ -150,7 +196,7 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
     setAudioStatus("🔄 Processing your recording...")
   }
 
-  // Text query function
+  // Text query function - FIXED error handling
   const submitTextQuery = async () => {
     if (!textQuery.trim()) return
 
@@ -166,6 +212,7 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
         setTextResponse(`Error: ${errorText}`)
         return
       }
+      
       const data = await response.json()
       setTextResponse(data.answer)
       speakText(data.answer)
@@ -178,7 +225,7 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
     }
   }
 
-  // Image analysis function - FIXED to match client.html
+  // Image analysis function - FIXED error handling
   const analyzeImage = async () => {
     const fileInput = document.getElementById('imageFile')
     
@@ -202,6 +249,7 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
         setImageResponse(`Error: ${errorText}`)
         return
       }
+      
       const data = await response.json()
       setImageResponse(data.answer)
       speakText(data.answer)
@@ -252,6 +300,17 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
     }
   }
 
+  // Cleanup function - ADD this
+  useEffect(() => {
+    return () => {
+      // Cleanup audio on unmount
+      if (currentAudioRef.current) {
+        currentAudioRef.current.pause()
+        currentAudioRef.current = null
+      }
+    }
+  }, [])
+
   // Render different tab contents
   const renderTabContent = () => {
     switch (activeTab) {
@@ -272,7 +331,10 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
                     <input 
                       type="checkbox" 
                       checked={autoTTS}
-                      onChange={(e) => setAutoTTS(e.target.checked)}
+                      onChange={(e) => {
+                        setAutoTTS(e.target.checked)
+                        setTtsStatus(e.target.checked ? 'Auto-TTS enabled' : 'Auto-TTS disabled')
+                      }}
                       className="rounded"
                     />
                     Auto-speak responses
@@ -285,6 +347,9 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
                     Test
                   </button>
                 </div>
+              </div>
+              <div className="text-sm text-gray-400">
+                Status: {ttsStatus}
               </div>
             </div>
 
@@ -516,13 +581,13 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
           <div className="space-y-6">
             <h2 className="text-3xl font-bold text-white mb-6">🤝 Contribute to Learning</h2>
             
-            {/* Upload Documents */}
+            {/* Upload Documents - FIX file input ID */}
             <div className="bg-gray-800 p-6 rounded-lg">
               <h3 className="text-xl font-semibold text-white mb-4">📤 Share Knowledge</h3>
               <div className="border-2 border-dashed border-gray-600 p-8 rounded-lg text-center">
                 <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                 <input 
-                  id="teacherPdfFile"
+                  id="contributionFile"
                   type="file" 
                   accept=".pdf"
                   className="mb-4 text-white"
