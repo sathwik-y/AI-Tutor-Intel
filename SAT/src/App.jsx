@@ -7,27 +7,13 @@ import { SignUpForm } from "./components/SignUpForm"
 import { LoginForm } from "./components/LoginForm"
 import { TeacherDashboard } from "./components/TeacherDashboard"
 import { StudentPortal } from "./components/StudentPortal"
+import { RoleSelection } from "./components/RoleSelection"
 
 function App() {
   const [currentPage, setCurrentPage] = useState("landing")
   const [userRole, setUserRole] = useState(null)
 
-  const handleSignUpClick = () => {
-    console.log("Sign Up clicked!")
-    setCurrentPage("signup")
-  }
-
-  const handleLoginClick = () => {
-    console.log("Login clicked!")
-    setCurrentPage("login")
-  }
-
-  const handleBackToLanding = () => {
-    setCurrentPage("landing")
-    setUserRole(null)
-  }
-
-  const handleLoginSuccess = (role) => {
+  const handleRoleSelect = (role) => {
     setUserRole(role)
     if (role === "teacher") {
       setCurrentPage("teacher-dashboard")
@@ -36,12 +22,21 @@ function App() {
     }
   }
 
-  if (currentPage === "signup") {
-    return <SignUpForm onBackToLanding={handleBackToLanding} onSignUpSuccess={handleLoginSuccess} />
+  const handleBackToLanding = () => {
+    setCurrentPage("landing")
+    setUserRole(null)
   }
 
-  if (currentPage === "login") {
-    return <LoginForm onBackToLanding={handleBackToLanding} onLoginSuccess={handleLoginSuccess} />
+  const handleSignUpClick = () => {
+    setCurrentPage("role-selection")
+  }
+
+  const handleLoginClick = () => {
+    setCurrentPage("role-selection")
+  }
+
+  if (currentPage === "role-selection") {
+    return <RoleSelection onRoleSelect={handleRoleSelect} onBack={handleBackToLanding} />
   }
 
   if (currentPage === "teacher-dashboard") {
