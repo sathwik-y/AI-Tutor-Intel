@@ -6,7 +6,7 @@ import { useState } from "react"
 import { PlaceholdersAndVanishInput } from "./ui/placeholders-and-vanish-input"
 import { ArrowRight } from "lucide-react"
 
-export function LoginForm({ onBackToLanding, onLoginSuccess }) {
+export function LoginForm({ onBack, onLoginSuccess }) {
   const [currentStep, setCurrentStep] = useState(0)
   const [formData, setFormData] = useState({
     email: "",
@@ -56,11 +56,8 @@ export function LoginForm({ onBackToLanding, onLoginSuccess }) {
     } else {
       console.log("Login data:", formData)
       
-      // Simple role detection based on email (you can improve this)
-      const role = formData.email.includes('teacher') || formData.email.includes('admin') ? 'teacher' : 'student'
-      
-      alert(`Login successful as ${role}!`)
-      onLoginSuccess(role)
+      alert(`Login successful!`)
+      onLoginSuccess()
     }
   }
 
@@ -77,7 +74,7 @@ export function LoginForm({ onBackToLanding, onLoginSuccess }) {
         {/* Back button */}
         <div className="mb-8">
           <button
-            onClick={onBackToLanding}
+            onClick={onBack}
             className="text-white hover:text-gray-200 bg-white/10 hover:bg-white/20 backdrop-blur-sm px-4 py-2 rounded-lg transition-colors border border-white/20"
           >
             ← Back to Home
@@ -163,7 +160,7 @@ export function LoginForm({ onBackToLanding, onLoginSuccess }) {
             </button>
           )}
 
-          <button onClick={onBackToLanding} className="text-gray-200 hover:text-white transition-colors">
+          <button onClick={onBack} className="text-gray-200 hover:text-white transition-colors">
             Don't have an account? Sign Up
           </button>
         </div>

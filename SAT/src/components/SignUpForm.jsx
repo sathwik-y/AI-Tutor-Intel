@@ -5,13 +5,12 @@ import { PlaceholdersAndVanishInput } from "./ui/placeholders-and-vanish-input"
 import { ArrowRight } from "lucide-react"
 import { cn } from "../lib/utils"
 
-export function SignUpForm({ onBackToLanding, onSignUpSuccess }) {
+export function SignUpForm({ onBack, onSignUpSuccess }) {
   const [currentStep, setCurrentStep] = useState(0)
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
-    role: "student" // Default role
   })
 
   const steps = [
@@ -40,23 +39,6 @@ export function SignUpForm({ onBackToLanding, onSignUpSuccess }) {
       subtitle: "Now, what's your email address?",
     },
     {
-      field: "role",
-      placeholders: [
-        "Select your role",
-        "Are you a teacher or student?",
-        "Choose your account type",
-        "What's your role?",
-        "Select user type",
-      ],
-      title: "Almost done!",
-      subtitle: "Tell us your role",
-      isSelect: true,
-      options: [
-        { value: "student", label: "Student" },
-        { value: "teacher", label: "Teacher" }
-      ]
-    },
-    {
       field: "password",
       placeholders: [
         "Create a secure password",
@@ -78,13 +60,6 @@ export function SignUpForm({ onBackToLanding, onSignUpSuccess }) {
     }))
   }
 
-  const handleRoleSelect = (role) => {
-    setFormData((prev) => ({
-      ...prev,
-      role: role,
-    }))
-  }
-
   const handleSubmit = (e) => {
     e.preventDefault()
 
@@ -92,8 +67,8 @@ export function SignUpForm({ onBackToLanding, onSignUpSuccess }) {
       setCurrentStep((prev) => prev + 1)
     } else {
       console.log("Sign up data:", formData)
-      alert(`Account created successfully as ${formData.role}!`)
-      onSignUpSuccess(formData.role)
+      alert(`Account created successfully!`)
+      onSignUpSuccess()
     }
   }
 
@@ -110,7 +85,7 @@ export function SignUpForm({ onBackToLanding, onSignUpSuccess }) {
         {/* Back button */}
         <div className="mb-8">
           <button
-            onClick={onBackToLanding}
+            onClick={onBack}
             className="text-white hover:text-gray-200 bg-white/10 hover:bg-white/20 backdrop-blur-sm px-4 py-2 rounded-lg transition-colors border border-white/20"
           >
             ← Back to Home
@@ -140,48 +115,13 @@ export function SignUpForm({ onBackToLanding, onSignUpSuccess }) {
 
         {/* Input form */}
         <div className="mb-8">
-          {currentStepData.isSelect ? (
-            // Role selection
-            <div className="max-w-xl mx-auto">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {currentStepData.options.map((option) => (
-                  <button
-                    key={option.value}
-                    onClick={() => {
-                      handleRoleSelect(option.value)
-                      if (currentStep < steps.length - 1) {
-                        setCurrentStep((prev) => prev + 1)
-                      }
-                    }}
-                    className={`p-6 rounded-xl border-2 transition-all duration-300 text-center ${
-                      formData.role === option.value
-                        ? 'border-purple-500 bg-purple-900/40 text-white'
-                        : 'border-gray-600 hover:border-purple-400 bg-gray-800/50 text-gray-300 hover:text-white'
-                    }`}
-                  >
-                    <div className="text-2xl mb-2">
-                      {option.value === 'teacher' ? '👨‍🏫' : '👨‍🎓'}
-                    </div>
-                    <div className="text-xl font-semibold">{option.label}</div>
-                    <div className="text-sm mt-2 opacity-80">
-                      {option.value === 'teacher' 
-                        ? 'Manage classes and knowledge base' 
-                        : 'Learn with AI assistance'
-                      }
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <PlaceholdersAndVanishInput
-              placeholders={currentStepData.placeholders}
-              onChange={handleChange}
-              onSubmit={handleSubmit}
-              type={currentStepData.field === "password" ? "password" : "text"}
-              value={formData[currentStepData.field]}
-            />
-          )}
+          <PlaceholdersAndVanishInput
+            placeholders={currentStepData.placeholders}
+            onChange={handleChange}
+            onSubmit={handleSubmit}
+            type={currentStepData.field === "password" ? "password" : "text"}
+            value={formData[currentStepData.field]}
+          />
         </div>
 
         {/* Google Sign Up - only show on first step */}
@@ -232,7 +172,7 @@ export function SignUpForm({ onBackToLanding, onSignUpSuccess }) {
             </button>
           )}
 
-          <button onClick={onBackToLanding} className="text-gray-200 hover:text-white transition-colors">
+          <button onClick={onBack} className="text-gray-200 hover:text-white transition-colors">
             Already have an account? Login
           </button>
         </div>
