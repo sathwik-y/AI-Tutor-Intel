@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
+import { marked } from 'marked';
 import { 
   BookOpen, 
   Mic, 
@@ -31,6 +32,7 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
   const [ttsStatus, setTtsStatus] = useState("Auto-TTS enabled")
   const [textResponse, setTextResponse] = useState("")
   const [imageResponse, setImageResponse] = useState("")
+  const [indexedPdfs, setIndexedPdfs] = useState([])
   const [conversationHistory, setConversationHistory] = useState(() => {
     if (typeof window !== 'undefined') {
       const savedHistory = localStorage.getItem('studentChatHistory');
@@ -44,6 +46,14 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
       localStorage.setItem('studentChatHistory', JSON.stringify(conversationHistory));
     }
   }, [conversationHistory]);
+  
+  // Helper function to format exam content
+  const formatExamContent = (rawText) => {
+    if (!rawText) return { __html: '' };
+    // Pre-process specific headings like "### UNIT -1" to "### UNIT 1"
+    const processedText = rawText.replace(/^(### UNIT -)(\d+)/gm, '### UNIT $2');
+    return { __html: marked.parse(processedText) };
+  };
   
   // Learning history
   const [learningHistory, setLearningHistory] = useState([])
@@ -349,6 +359,9 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
 
   // Cleanup function - ADD this
   useEffect(() => {
+    // Load indexed PDFs on mount
+    loadIndexedPdfs()
+
     return () => {
       // Cleanup audio on unmount
       if (currentAudioRef.current) {
@@ -357,6 +370,17 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
       }
     }
   }, [])
+
+  // Load indexed PDFs
+  const loadIndexedPdfs = async () => {
+    try {
+      const response = await fetch('http://localhost:8000/api/knowledge/pdfs')
+      const data = await response.json()
+      setIndexedPdfs(data)
+    } catch (error) {
+      console.error('Error loading indexed PDFs:', error)
+    }
+  }
 
   // Render different tab contents
   const renderTabContent = () => {
@@ -443,8 +467,7 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
                 
                 <div className="bg-white/10 p-4 rounded-lg backdrop-blur">
                   <h4 className="text-white font-semibold mb-2">🤖 SAGE's Answer:</h4>
-                  <div className="text-white/90 min-h-[80px] p-2 bg-black/20 rounded">
-                    {llmResponse}
+                  <div className="text-white/90 min-h-[80px] p-2 bg-black/20 rounded" dangerouslySetInnerHTML={formatExamContent(llmResponse)}>
                   </div>
                 </div>
               </div>
@@ -479,7 +502,8 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
               {textResponse && (
                 <div className="mt-4 p-4 bg-blue-900/30 rounded border">
                   <h4 className="text-white font-semibold mb-2">🤖 Answer:</h4>
-                  <div className="text-gray-300">{textResponse}</div>
+                  <div className="text-gray-300" dangerouslySetInnerHTML={formatExamContent(textResponse)}>
+                  </div>
                 </div>
               )}
             </div>
@@ -515,7 +539,8 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
                 {imageResponse && (
                   <div className="p-4 bg-green-900/30 rounded border">
                     <h4 className="text-white font-semibold mb-2">🔍 Analysis:</h4>
-                    <div className="text-gray-300">{imageResponse}</div>
+                    <div className="text-gray-300" dangerouslySetInnerHTML={formatExamContent(imageResponse)}>
+                  </div>
                   </div>
                 )}
               </div>
@@ -567,9 +592,26 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
             {/* Recent Documents */}
             <div className="bg-gray-800 p-6 rounded-lg">
               <h3 className="text-xl font-semibold text-white mb-4">📄 Recent Documents</h3>
-              <div className="text-gray-400 text-center py-8">
-                No documents available yet. Ask your teacher to upload course materials!
-              </div>
+              <button 
+                onClick={loadIndexedPdfs}
+                className="mb-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
+              >
+                🔄 Refresh Document List
+              </button>
+              {indexedPdfs.length === 0 ? (
+                <div className="text-gray-400 text-center py-8">
+                  No documents available yet. Ask your teacher to upload course materials!
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {indexedPdfs.map((pdfName, index) => (
+                    <div key={index} className="bg-gray-700 p-3 rounded-lg flex items-center justify-between">
+                      <span className="text-white">{pdfName}</span>
+                      <BookOpen className="w-5 h-5 text-blue-400" />
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         )

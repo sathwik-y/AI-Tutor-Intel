@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
+import { marked } from 'marked';
 import { 
   BookOpen, 
   Camera, 
@@ -32,6 +33,14 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
   })
   const [usageStats, setUsageStats] = useState({ voice: 0, text: 0, image: 0 })
 
+  // Helper function to format exam content using marked
+  const formatExamContent = (rawText) => {
+    if (!rawText) return { __html: '' };
+    // Pre-process specific headings like "### UNIT -1" to "### UNIT 1"
+    const processedText = rawText.replace(/^(### UNIT -)(\d+)/gm, '### UNIT $2');
+    return { __html: marked.parse(processedText) };
+  };
+
   // Audio states
   const [transcript, setTranscript] = useState("Transcript will appear here...")
   const [llmResponse, setLlmResponse] = useState("Response will appear here...")
@@ -56,6 +65,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
   const [imageQuery, setImageQuery] = useState("What information can you extract from this image?")
   const [imageResponse, setImageResponse] = useState("")
   const [uploadStatus, setUploadStatus] = useState("")
+  const [indexedPdfs, setIndexedPdfs] = useState([])
   
   // Camera refs
   const videoRef = useRef(null)
@@ -322,9 +332,21 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
 
       const data = await response.json()
       setUploadStatus(`✅ ${data.status}`)
+      loadIndexedPdfs()
       
     } catch (error) {
       setUploadStatus(`❌ Error: ${error.message}`)
+    }
+  }
+
+  // Load indexed PDFs
+  const loadIndexedPdfs = async () => {
+    try {
+      const response = await fetch('http://localhost:8000/api/knowledge/pdfs')
+      const data = await response.json()
+      setIndexedPdfs(data)
+    } catch (error) {
+      console.error('Error loading indexed PDFs:', error)
     }
   }
 
@@ -438,6 +460,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
   useEffect(() => {
     loadAttendanceStats()
     loadUsageStats()
+    loadIndexedPdfs()
     
     return () => {
       // Cleanup audio on unmount
@@ -694,7 +717,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
               {textResponse && (
                 <div className="mt-4 p-4 bg-purple-900/30 rounded border">
                   <h4 className="text-white font-semibold mb-2">🤖 Answer:</h4>
-                  <div className="text-gray-300">{textResponse}</div>
+                  <div className="text-gray-300" dangerouslySetInnerHTML={formatExamContent(textResponse)} />
                 </div>
               )}
             </div>
@@ -730,7 +753,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
                 {imageResponse && (
                   <div className="p-4 bg-green-900/30 rounded border">
                     <h4 className="text-white font-semibold mb-2">🔍 Analysis:</h4>
-                    <div className="text-gray-300">{imageResponse}</div>
+                    <div className="text-gray-300" dangerouslySetInnerHTML={formatExamContent(imageResponse)} />
                   </div>
                 )}
               </div>
@@ -773,17 +796,33 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="bg-gray-700 p-4 rounded-lg">
                   <p className="text-gray-400 text-sm">Total Documents</p>
-                  <p className="text-2xl font-bold text-white">0</p>
+                  <p className="text-2xl font-bold text-white">{indexedPdfs.length}</p>
                 </div>
                 <div className="bg-gray-700 p-4 rounded-lg">
                   <p className="text-gray-400 text-sm">Last Updated</p>
-                  <p className="text-white">Never</p>
+                  <p className="text-white">{indexedPdfs.length > 0 ? new Date().toLocaleDateString() : 'Never'}</p>
                 </div>
                 <div className="bg-gray-700 p-4 rounded-lg">
                   <p className="text-gray-400 text-sm">Total Queries</p>
-                  <p className="text-2xl font-bold text-white">0</p>
+                  <p className="text-2xl font-bold text-white">{usageStats.voice + usageStats.text + usageStats.image}</p>
                 </div>
               </div>
+              <button 
+                onClick={loadIndexedPdfs}
+                className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
+              >
+                🔄 Refresh Document List
+              </button>
+              {indexedPdfs.length > 0 && (
+                <div className="mt-6">
+                  <h4 className="text-white font-semibold mb-2">Indexed Documents:</h4>
+                  <ul className="list-disc list-inside text-gray-300">
+                    {indexedPdfs.map((pdfName, index) => (
+                      <li key={index}>{pdfName}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
           </div>
         )

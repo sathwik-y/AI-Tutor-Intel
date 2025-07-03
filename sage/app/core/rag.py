@@ -1,20 +1,62 @@
 import numpy as np
 import faiss
 from sentence_transformers import SentenceTransformer
+import os
+import pickle
 
 embedder = SentenceTransformer("all-MiniLM-L6-v2")
 
+# File paths for persistence
+KB_DIR = "knowledge_base"
+FAISS_INDEX_PATH = os.path.join(KB_DIR, "faiss.index")
+TEXTS_PATH = os.path.join(KB_DIR, "texts.pkl")
+PDF_NAMES_PATH = os.path.join(KB_DIR, "pdf_names.pkl")
+
 texts = []
 index = None
+indexed_pdf_names = []
 
-def build_index_from_chunks(chunks: list[str]):
-    global texts, index
+def save_knowledge_base():
+    os.makedirs(KB_DIR, exist_ok=True)
+    if index is not None:
+        faiss.write_index(index, FAISS_INDEX_PATH)
+    with open(TEXTS_PATH, "wb") as f:
+        pickle.dump(texts, f)
+    with open(PDF_NAMES_PATH, "wb") as f:
+        pickle.dump(indexed_pdf_names, f)
+    print("Knowledge base saved.")
 
-    texts = chunks
+def load_knowledge_base():
+    global texts, index, indexed_pdf_names
+    if os.path.exists(FAISS_INDEX_PATH) and os.path.exists(TEXTS_PATH) and os.path.exists(PDF_NAMES_PATH):
+        try:
+            index = faiss.read_index(FAISS_INDEX_PATH)
+            with open(TEXTS_PATH, "rb") as f:
+                texts = pickle.load(f)
+            with open(PDF_NAMES_PATH, "rb") as f:
+                indexed_pdf_names = pickle.load(f)
+            print("Knowledge base loaded.")
+        except Exception as e:
+            print(f"Error loading knowledge base: {e}")
+            texts = []
+            index = None
+            indexed_pdf_names = []
+    else:
+        print("No existing knowledge base found.")
+
+def build_index_from_chunks(chunks: list[str], pdf_name: str):
+    global texts, index, indexed_pdf_names
+
+    # Append new chunks and update PDF names
+    texts.extend(chunks)
+    if pdf_name not in indexed_pdf_names:
+        indexed_pdf_names.append(pdf_name)
+
     vectors = np.array(embedder.encode(texts)).astype("float32")
 
     index = faiss.IndexFlatL2(vectors.shape[1])
     index.add(vectors)
+    save_knowledge_base() # Save after building/updating index
 
 def query_with_context(query: str, k: int = 3):
     if index is None:
@@ -54,3 +96,9 @@ def get_relevant_context(query: str, k: int = 3) -> str:
     print(f"Final context: {len(results)} chunks, {len(context)} chars")
     
     return context if context else "No relevant context found in documents."
+
+def get_indexed_pdf_names() -> list[str]:
+    return indexed_pdf_names
+
+# Load knowledge base on module import
+load_knowledge_base()

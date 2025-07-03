@@ -38,7 +38,10 @@ def extract_text_chunks_from_pdf(path: str):
     chunks.extend(overlap_chunks)
     return chunks
 
+import os
+
 def process_pdf_and_build_index(pdf_path: str):
     chunks = extract_text_chunks_from_pdf(pdf_path)
+    pdf_name = os.path.basename(pdf_path)
     print(f"Extracted {len(chunks)} chunks from PDF")  # Debug info
-    build_index_from_chunks(chunks)
+    build_index_from_chunks(chunks, pdf_name)
