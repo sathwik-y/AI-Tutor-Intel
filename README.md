@@ -1,5 +1,5 @@
 # Team Spartans Intel Unnati Industrial Training 
----
+
 # Sage Smart AI Guided for Education 🚀
 
 As part of our Intel Unnati Training Program we built a comprehensive AI-powered tutoring system that combines modern web technologies with optimized machine learning models for an enhanced learning experience.
