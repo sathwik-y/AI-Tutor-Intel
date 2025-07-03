@@ -178,6 +178,38 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
     }
   }
 
+  const pollForAudioResponse = async () => {
+    let attempts = 0;
+    const maxAttempts = 30; // Poll for 30 seconds
+
+    const intervalId = setInterval(async () => {
+      if (attempts >= maxAttempts) {
+        clearInterval(intervalId);
+        setAudioStatus("❌ Error: Processing timed out.");
+        return;
+      }
+
+      try {
+        const response = await fetch('http://localhost:8000/get-last-response');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.ready) {
+            clearInterval(intervalId);
+            setTranscript(data.transcript);
+            setLlmResponse(data.response);
+            setAudioStatus("✅ Complete! Ready for next question.");
+            speakText(data.response);
+            addToHistory('voice', data.response, data.transcript);
+          }
+        }
+      } catch (error) {
+        // This will keep polling on network error.
+        console.error("Polling error:", error);
+      }
+      attempts++;
+    }, 1000); // Poll every second
+  };
+
   const stopRecording = () => {
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop()
@@ -194,6 +226,7 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
     }
     
     setAudioStatus("🔄 Processing your recording...")
+    pollForAudioResponse();
   }
 
   // Text query function - FIXED error handling
