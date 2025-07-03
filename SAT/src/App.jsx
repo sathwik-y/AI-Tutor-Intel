@@ -3,11 +3,8 @@
 import { useState } from "react"
 import { HoverButton } from "./components/HoverButton"
 import { BlackHoleBackground } from "./components/BlackHoleBackground"
-import { SignUpForm } from "./components/SignUpForm"
-import { LoginForm } from "./components/LoginForm"
 import { TeacherDashboard } from "./components/TeacherDashboard"
 import { StudentPortal } from "./components/StudentPortal"
-import { RoleSelection } from "./components/RoleSelection"
 
 function App() {
   const [currentPage, setCurrentPage] = useState("landing")
@@ -27,17 +24,7 @@ function App() {
     setUserRole(null)
   }
 
-  const handleSignUpClick = () => {
-    setCurrentPage("role-selection")
-  }
-
-  const handleLoginClick = () => {
-    setCurrentPage("role-selection")
-  }
-
-  if (currentPage === "role-selection") {
-    return <RoleSelection onRoleSelect={handleRoleSelect} onBack={handleBackToLanding} />
-  }
+  
 
   if (currentPage === "teacher-dashboard") {
     return <TeacherDashboard onLogout={handleBackToLanding} userRole={userRole} />
@@ -68,16 +55,16 @@ function App() {
             {/* Buttons */}
             <div className="flex flex-col sm:flex-row gap-6 justify-center">
               <HoverButton
-                text="Sign Up"
+                text="Student"
                 className="border-purple-400 text-white hover:text-purple-600"
                 dotClassName="bg-purple-400"
-                onClick={handleSignUpClick}
+                onClick={() => handleRoleSelect("student")}
               />
               <HoverButton
-                text="Login"
+                text="Teacher"
                 className="border-blue-400 text-white hover:text-blue-600"
                 dotClassName="bg-blue-400"
-                onClick={handleLoginClick}
+                onClick={() => handleRoleSelect("teacher")}
               />
             </div>
           </div>
