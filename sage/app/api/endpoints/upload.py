@@ -1,7 +1,6 @@
 from fastapi import APIRouter, UploadFile, File
 import os
 from app.services.pdf_service import process_pdf_and_build_index
-
 router = APIRouter()
 
 @router.post("/upload-pdf")

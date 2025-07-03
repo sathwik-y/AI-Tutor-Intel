@@ -30,6 +30,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
     maximum: 0,
     records: 0
   })
+  const [usageStats, setUsageStats] = useState({ voice: 0, text: 0, image: 0 })
 
   // Audio states
   const [transcript, setTranscript] = useState("Transcript will appear here...")
@@ -244,6 +245,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
       const data = await response.json()
       setTextResponse(data.answer)
       speakText(data.answer)
+      loadUsageStats()
       
     } catch (error) {
       setTextResponse(`Error: ${error.message}`)
@@ -278,6 +280,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
       const data = await response.json()
       setImageResponse(data.answer)
       speakText(data.answer)
+      loadUsageStats()
       
     } catch (error) {
       setImageResponse(`Error: ${error.message}`)
@@ -406,9 +409,21 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
     }
   }
 
+  // Load usage stats
+  const loadUsageStats = async () => {
+    try {
+      const response = await fetch('http://localhost:8000/api/analytics/usage')
+      const data = await response.json()
+      setUsageStats({ voice: data.voice, text: data.text, image: data.image })
+    } catch (error) {
+      console.error('Usage stats error:', error)
+    }
+  }
+
   // Load stats on component mount and cleanup
   useEffect(() => {
     loadAttendanceStats()
+    loadUsageStats()
     
     return () => {
       // Cleanup audio on unmount
@@ -800,17 +815,23 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="bg-gray-700 p-4 rounded-lg">
                   <p className="text-gray-400 text-sm">Voice Queries</p>
-                  <p className="text-2xl font-bold text-white">0</p>
+                  <p className="text-2xl font-bold text-white">{usageStats.voice}</p>
                 </div>
                 <div className="bg-gray-700 p-4 rounded-lg">
                   <p className="text-gray-400 text-sm">Text Queries</p>
-                  <p className="text-2xl font-bold text-white">0</p>
+                  <p className="text-2xl font-bold text-white">{usageStats.text}</p>
                 </div>
                 <div className="bg-gray-700 p-4 rounded-lg">
                   <p className="text-gray-400 text-sm">Image Analysis</p>
-                  <p className="text-2xl font-bold text-white">0</p>
+                  <p className="text-2xl font-bold text-white">{usageStats.image}</p>
                 </div>
               </div>
+              <button 
+                onClick={loadUsageStats}
+                className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
+              >
+                📈 Refresh Usage Statistics
+              </button>
             </div>
           </div>
         )

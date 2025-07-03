@@ -2,6 +2,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 from app.services.gen_service import generate_llm_response
 from app.services.utils import maybe_generate_visual
+from app.services.analytics_service import record_query
 
 router = APIRouter()
 
@@ -15,6 +16,7 @@ class QueryResponse(BaseModel):
 
 @router.post("/query/text", response_model=QueryResponse)
 async def query_text(request: QueryRequest):
+    record_query("text")
     answer = await generate_llm_response(request.query)
     visual = maybe_generate_visual(answer)
     

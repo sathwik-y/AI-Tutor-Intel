@@ -2,6 +2,7 @@
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from app.services.audio_service import transcribe_chunk
 from app.core.model import generate_from_model
+from app.services.analytics_service import record_query
 import asyncio
 import json
 
@@ -36,6 +37,7 @@ async def websocket_transcribe(ws: WebSocket):
                 final_transcript = await transcribe_chunk(combined_audio)
                 
                 if final_transcript.strip():
+                    record_query("voice")
                     print(f"Final transcript: {final_transcript}")
                     llm_answer = generate_from_model(final_transcript)
                     print(f"LLM response: {llm_answer[:100]}...")

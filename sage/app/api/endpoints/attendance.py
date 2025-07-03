@@ -4,7 +4,7 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from typing import List, Dict, Optional
 import os
-
+from app.services.analytics_service import record_query
 # Import attendance service
 try:
     from app.services.attendance_service import (

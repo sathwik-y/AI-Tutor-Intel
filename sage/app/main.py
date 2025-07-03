@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.endpoints import audio, text, image, upload, tts, attendance
+from app.api.endpoints import audio, text, image, upload, tts, attendance, analytics
 from contextlib import asynccontextmanager
 import os
 
@@ -58,6 +58,7 @@ app.include_router(image.router, prefix="/api", tags=["Image"])
 app.include_router(upload.router, prefix="/api", tags=["Upload"])
 app.include_router(tts.router, prefix="/api", tags=["Text-to-Speech"])
 app.include_router(attendance.router, prefix="/api", tags=["Attendance"])
+app.include_router(analytics.router, prefix="/api", tags=["Analytics"])
 
 @app.get("/")
 def root():

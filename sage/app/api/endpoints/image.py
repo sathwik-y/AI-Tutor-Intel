@@ -6,6 +6,7 @@ from app.core.rag import build_index_from_chunks, texts, index
 from app.services.gen_service import generate_llm_response
 from app.services.utils import maybe_generate_visual
 from app.services.vision_service import analyze_image_with_vision
+from app.services.analytics_service import record_query
 import io
 
 router = APIRouter()
@@ -52,6 +53,7 @@ async def upload_image(file: UploadFile):
 
 @router.post("/query/image")
 async def query_image_direct(file: UploadFile, query: str = Form("What information can you extract from this image?")):
+    record_query("image")
     """Query image using BOTH OCR and Vision AI (VISION PRIORITIZED)"""
     try:
         # Read and process the uploaded image
