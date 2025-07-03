@@ -6,8 +6,11 @@ from app.services.analytics_service import record_query
 
 router = APIRouter()
 
+from typing import List, Dict
+
 class QueryRequest(BaseModel):
     query: str
+    history: List[Dict[str, str]] = []
 
 class QueryResponse(BaseModel):
     query: str
@@ -17,7 +20,7 @@ class QueryResponse(BaseModel):
 @router.post("/query/text", response_model=QueryResponse)
 async def query_text(request: QueryRequest):
     record_query("text")
-    answer = await generate_llm_response(request.query)
+    answer = await generate_llm_response(request.query, request.history)
     visual = maybe_generate_visual(answer)
     
     return QueryResponse(

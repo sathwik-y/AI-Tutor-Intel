@@ -31,6 +31,19 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
   const [ttsStatus, setTtsStatus] = useState("Auto-TTS enabled")
   const [textResponse, setTextResponse] = useState("")
   const [imageResponse, setImageResponse] = useState("")
+  const [conversationHistory, setConversationHistory] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const savedHistory = localStorage.getItem('studentChatHistory');
+      return savedHistory ? JSON.parse(savedHistory) : [];
+    }
+    return [];
+  });
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('studentChatHistory', JSON.stringify(conversationHistory));
+    }
+  }, [conversationHistory]);
   
   // Learning history
   const [learningHistory, setLearningHistory] = useState([])
@@ -237,7 +250,7 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
       const response = await fetch('http://localhost:8000/api/query/text', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: textQuery })
+        body: JSON.stringify({ query: textQuery, history: conversationHistory })
       })
 
       if (!response.ok) {
@@ -252,6 +265,7 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
       
       // Add to learning history
       addToHistory('text', data.answer, textQuery)
+      setConversationHistory(prev => [...prev, { role: 'user', content: textQuery }, { role: 'assistant', content: data.answer }]);
       
     } catch (error) {
       setTextResponse(`Error: ${error.message}`)

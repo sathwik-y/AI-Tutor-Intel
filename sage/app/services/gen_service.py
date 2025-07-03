@@ -6,21 +6,28 @@ from app.core.model import generate_from_model  # Correct function name
 # Create a thread pool for CPU-intensive tasks
 executor = ThreadPoolExecutor(max_workers=1)
 
-def _generate_response_with_context(query: str) -> str:
+def _generate_response_with_context(query: str, history: list[dict]) -> str:
     """Generate response using RAG - retrieves PDF context first"""
     
     # Step 1: Retrieve relevant context from uploaded PDFs
     relevant_context = get_relevant_context(query, k=3)  # Reduced k to avoid token overflow
     
     # Step 2: Create simple, general prompts
+    conversation_history_str = ""
+    for turn in history:
+        if turn["role"] == "user":
+            conversation_history_str += f"User: {turn["content"]}\n"
+        elif turn["role"] == "assistant":
+            conversation_history_str += f"Assistant: {turn["content"]}\n"
+
     if relevant_context and "No knowledge base loaded" not in relevant_context:
         prompt = f"""Context: {relevant_context}
 
-Question: {query}
+{conversation_history_str}Question: {query}
 
 Answer based on the context provided above. Be accurate and complete in your response."""
     else:
-        prompt = f"""Question: {query}
+        prompt = f"""{conversation_history_str}Question: {query}
 
 Provide a helpful and accurate answer."""
     
@@ -29,7 +36,7 @@ Provide a helpful and accurate answer."""
     
     return response
 
-async def generate_llm_response(query: str) -> str:
+async def generate_llm_response(query: str, history: list[dict]) -> str:
     """Async wrapper for RAG-based response generation"""
     loop = asyncio.get_event_loop()
-    return await loop.run_in_executor(executor, _generate_response_with_context, query)
+    return await loop.run_in_executor(executor, _generate_response_with_context, query, history)

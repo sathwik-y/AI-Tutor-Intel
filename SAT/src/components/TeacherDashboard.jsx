@@ -40,6 +40,19 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
   // Text and Image states
   const [textQuery, setTextQuery] = useState("")
   const [textResponse, setTextResponse] = useState("")
+  const [conversationHistory, setConversationHistory] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const savedHistory = localStorage.getItem('chatHistory');
+      return savedHistory ? JSON.parse(savedHistory) : [];
+    }
+    return [];
+  });
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('chatHistory', JSON.stringify(conversationHistory));
+    }
+  }, [conversationHistory]);
   const [imageQuery, setImageQuery] = useState("What information can you extract from this image?")
   const [imageResponse, setImageResponse] = useState("")
   const [uploadStatus, setUploadStatus] = useState("")
@@ -233,7 +246,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
       const response = await fetch('http://localhost:8000/api/query/text', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: textQuery })
+        body: JSON.stringify({ query: textQuery, history: conversationHistory })
       })
 
       if (!response.ok) {
@@ -245,6 +258,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
       const data = await response.json()
       setTextResponse(data.answer)
       speakText(data.answer)
+      setConversationHistory(prev => [...prev, { role: 'user', content: textQuery }, { role: 'assistant', content: data.answer }]);
       loadUsageStats()
       
     } catch (error) {
