@@ -50,8 +50,8 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
   // Helper function to format exam content
   const formatExamContent = (rawText) => {
     if (!rawText) return { __html: '' };
-    // Pre-process specific headings like "### UNIT -1" to "### UNIT 1"
-    const processedText = rawText.replace(/^(### UNIT -)(\d+)/gm, '### UNIT $2');
+    // Pre-process specific headings like "### UNIT -1" to "### UNIT 1" and ensure a newline before them
+    const processedText = rawText.replace(/^(### UNIT -)(\d+)/gm, '\n### UNIT $2');
     return { __html: marked.parse(processedText) };
   };
   
