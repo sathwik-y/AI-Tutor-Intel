@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react"
 import { marked } from 'marked';
+import { API_ENDPOINTS, getAudioUrl } from '../lib/api';
 import { 
   BookOpen, 
   Camera, 
@@ -101,7 +102,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
         currentAudioRef.current = null
       }
 
-      const response = await fetch('http://localhost:8000/api/tts/generate', {
+      const response = await fetch(API_ENDPOINTS.TTS_GENERATE, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: text })
@@ -111,9 +112,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
         const data = await response.json()
         
         // Construct the full URL for the audio file
-        const audioUrl = data.audio_url.startsWith('http') 
-          ? data.audio_url 
-          : `http://localhost:8000${data.audio_url}`
+        const audioUrl = getAudioUrl(data.audio_url)
         
         // Play the generated audio
         currentAudioRef.current = new Audio(audioUrl)
@@ -142,7 +141,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
   const startRecording = async () => {
     try {
       // Connect WebSocket
-      socketRef.current = new WebSocket("ws://localhost:8000/ws/transcribe")
+      socketRef.current = new WebSocket(API_ENDPOINTS.WEBSOCKET_TRANSCRIBE)
       
       socketRef.current.onopen = () => {
         setAudioStatus("🎤 Connected - Recording in progress...")
@@ -211,7 +210,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
       }
 
       try {
-        const response = await fetch('http://localhost:8000/get-last-response');
+        const response = await fetch(API_ENDPOINTS.GET_LAST_RESPONSE);
         if (response.ok) {
           const data = await response.json();
           if (data.ready) {
@@ -253,7 +252,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
     if (!textQuery.trim()) return
 
     try {
-      const response = await fetch('http://localhost:8000/api/query/text', {
+      const response = await fetch(API_ENDPOINTS.QUERY_TEXT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: textQuery, history: conversationHistory })
@@ -290,7 +289,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
     formData.append('query', imageQuery)
 
     try {
-      const response = await fetch('http://localhost:8000/api/query/image', {
+      const response = await fetch(API_ENDPOINTS.QUERY_IMAGE, {
         method: 'POST',
         body: formData
       })
@@ -325,7 +324,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
     try {
       setUploadStatus('Uploading and processing PDF...')
       
-      const response = await fetch('http://localhost:8000/api/upload-pdf', {
+      const response = await fetch(API_ENDPOINTS.UPLOAD_PDF, {
         method: 'POST',
         body: formData
       })
@@ -342,7 +341,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
   // Load indexed PDFs
   const loadIndexedPdfs = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/knowledge/pdfs')
+      const response = await fetch(API_ENDPOINTS.KNOWLEDGE_PDFS)
       const data = await response.json()
       setIndexedPdfs(data)
     } catch (error) {
@@ -409,7 +408,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
         formData.append('file', blob, 'live_frame.jpg')
         
         try {
-          const response = await fetch('http://localhost:8000/api/attendance/upload', {
+          const response = await fetch(API_ENDPOINTS.ATTENDANCE_UPLOAD, {
             method: 'POST',
             body: formData
           })
@@ -431,7 +430,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
   // Load attendance stats
   const loadAttendanceStats = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/attendance/stats')
+      const response = await fetch(API_ENDPOINTS.ATTENDANCE_STATS)
       const data = await response.json()
       
       setAttendanceStats({
@@ -448,7 +447,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
   // Load usage stats
   const loadUsageStats = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/analytics/usage')
+      const response = await fetch(API_ENDPOINTS.ANALYTICS_USAGE)
       const data = await response.json()
       setUsageStats({ voice: data.voice, text: data.text, image: data.image })
     } catch (error) {
