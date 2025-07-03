@@ -11,11 +11,12 @@ OpenVino.ipynb
 OpenVinoQwen-fp16.ipynb
 .idea/
 
-!sage/static/attendance/.gitkeep
-!sage/static/audio/.gitkeep
-!sage/static/exports/.gitkeep
+!sage-backend/static/attendance/.gitkeep
+!sage-backend/static/audio/.gitkeep
+!sage-backend/static/exports/.gitkeep
 
 
-sage/static/attendance/*
-sage/static/audio/*
-sage/static/exports/*
+sage-backend/static/attendance/*
+sage-backend/static/audio/*
+sage-backend/static/exports/*
+node_modules/

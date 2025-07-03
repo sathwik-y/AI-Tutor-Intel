@@ -1,9 +1,9 @@
-# Optimizing Llama 3.1 with Intel OpenVINO
+# Optimizing Qwen-2.5 with Intel OpenVINO
 
-This guide demonstrates how to optimize and accelerate the Llama 3.1 model using Intel's OpenVINO toolkit. The project shows how to make a large language model run more efficiently on standard CPU hardware.
+This guide demonstrates how to optimize and accelerate the Qwen-2.5 model using Intel's OpenVINO toolkit. The project shows how to make a large language model run more efficiently on standard CPU hardware.
 
 ### The optimized model has been pushed to Hugging Face (Link below)
-[Hugging Face - ov_llama3.1-8b-int8](https://huggingface.co/minorityhunter/ov_llama3.1-8b-int8)
+[Hugging Face - Qwen-2.5-7B-Optimized-int8](https://huggingface.co/minorityhunter/Qwen-2.5-7B-Optimized-int8)
 ## What is OpenVINO?
 OpenVINO (Open Visual Inference & Neural network Optimization) is Intel's toolkit designed to help developers and data scientists accelerate AI workloads. It optimizes models to run efficiently on Intel hardware, including CPUs, integrated GPUs, VPUs, and FPGAs.
 
@@ -11,7 +11,7 @@ OpenVINO (Open Visual Inference & Neural network Optimization) is Intel's toolki
 
 This project demonstrates how to:
 
-1. Load the Llama 3.1 8B Instruct model from Hugging Face
+1. Load the Qwen-2.5 7B  model from Hugging Face
 2. Benchmark its performance
 3. Optimize the model using OpenVINO with INT8 quantization
 4. Compare the performance before and after optimization
@@ -23,7 +23,6 @@ The optimization reduces model size by 50-55% and improves latency by 4-5%, prov
 Before you begin, make sure you have:
 
 - Python 3.8 or newer
-- A Hugging Face account with access to Llama 3.1 models
 - Your Hugging Face access token
 - At least 16GB of RAM (Suggested to Use Google Colab )
 
@@ -36,10 +35,7 @@ pip install --upgrade optimum[openvino] transformers accelerate huggingface_hub
 
 ## Setting Up Hugging Face Access
 
-You'll need to authenticate with Hugging Face to download the Llama 3.1 model:
-
 1. Create a Hugging Face account if you don't have one
-2. Request access to the Meta-Llama-3.1-8B-Instruct model
 3. Create an access token at Hugging Face Settings
 4. Use your token in the notebook:
    ```python
@@ -49,7 +45,7 @@ You'll need to authenticate with Hugging Face to download the Llama 3.1 model:
 
 ## Running the Project
 
-Open and run the `OpenVinoLlama.ipynb` notebook. The notebook will:
+Open and run the `OpenVinoQwen.ipynb` notebook. The notebook will:
 - Install required packages
 - Load the original model
 - Benchmark it
@@ -109,12 +105,7 @@ The optimization provides:
    - This is normal as the first run includes compilation time
    - Subsequent runs will be faster
 
-3. **Model Access Issues**
-   - Ensure you've been granted access to the Llama 3.1 model
-   - Check that your Hugging Face token is correct
-
 ## Learn More
 
 - [OpenVINO Documentation](https://docs.openvino.ai/)
 - [Optimum Intel Documentation](https://huggingface.co/docs/optimum/intel/index)
-- [Llama 3.1 Model Card](https://huggingface.co/meta-llama/Meta-Llama-3.1-8B-Instruct)
