@@ -41,15 +41,16 @@ function App() {
 
       <div className="relative z-10 flex flex-col min-h-screen">
         
-        <header className="w-full p-4 md:p-6">
-          <h1 className="text-2xl md:text-3xl font-bold text-white">SAGE</h1>
-        </header>
+        <header className="w-full p-4 md:p-6"></header>
 
         <main className="flex-1 flex flex-col items-center justify-center p-4">
           <div className="max-w-3xl text-center">
-            <h2 className="text-4xl md:text-6xl font-bold text-white mb-6">Learn Smarter, Not Harder</h2>
-            <p className="text-xl md:text-2xl text-gray-300 mb-12">
-              Your personal AI tutor that adapts to your learning style
+            <h1 className="text-5xl md:text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-600 font-poppins mb-2">SAGE</h1>
+            <p className="text-lg md:text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-600 font-inter mb-1">
+              Smart AI Guided for Education
+            </p>
+            <p className="text-lg md:text-xl font-normal text-white font-poppins mb-4">
+              Learn Smarter with your classroom tutor
             </p>
 
             {/* Buttons */}
