@@ -2,6 +2,8 @@
 <a href="https://github.com/sathwik-y/AI-Tutor-Intel/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=sathwik-y/AI-Tutor-Intel" />
 </a>
+
+
 # Sage Smart AI Guided for Education 🚀
 As part of our Intel Unnati Training Program we built a comprehensive AI-powered tutoring system that combines modern web technologies with optimized machine learning models for an enhanced learning experience.
 
