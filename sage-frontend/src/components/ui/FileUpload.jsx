@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Upload } from "lucide-react";
 
 /**
@@ -11,6 +11,7 @@ import { Upload } from "lucide-react";
  * - status: string (status message)
  * - helpText: string (optional help/placeholder text)
  * - className: string (optional extra classes)
+ * - onFileSelect: function (optional callback for selecting a file)
  */
 export default function FileUpload({
   id,
@@ -20,7 +21,16 @@ export default function FileUpload({
   status = "",
   helpText = "",
   className = "",
+  onFileSelect,
 }) {
+  const [selectedFile, setSelectedFile] = useState(null);
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    setSelectedFile(file);
+    if (onFileSelect) onFileSelect(file);
+  };
+
   return (
     <div className={`flex flex-col items-center justify-center p-8 ${className}`}>
       <div className="input-div">
@@ -30,8 +40,14 @@ export default function FileUpload({
           type="file"
           accept={accept}
           className="upload-input"
+          onChange={handleFileChange}
         />
       </div>
+      {selectedFile && (
+        <div className="mt-2 text-sm text-white bg-gray-700 px-3 py-1 rounded-2xl">
+          {selectedFile.name}
+        </div>
+      )}
       {helpText && (
         <p className="text-gray-400 mt-4 mb-4 text-center">{helpText}</p>
       )}
