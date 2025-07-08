@@ -478,8 +478,6 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
 
             {/* Quick Actions */}
             <div className="bg-gray-800 p-6 rounded-3xl">
-            
-            <div className="bg-gray-800 p-6 rounded-lg">
               <h3 className="text-xl font-semibold text-white mb-4">Quick Actions</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <button 
@@ -515,8 +513,6 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
             
             {/* Camera Controls */}
             <div className="bg-gray-800 p-6 rounded-3xl">
-            
-            <div className="bg-gray-800 p-6 rounded-lg">
               <h3 className="text-xl font-semibold text-white mb-4">📷 Live Camera</h3>
               <div className="flex gap-4 mb-6">
                 <button
@@ -599,8 +595,6 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
 
             {/* File Upload */}
             <div className="bg-gray-800 p-6 rounded-3xl">
-            
-            <div className="bg-gray-800 p-6 rounded-lg">
               <h3 className="text-xl font-semibold text-white mb-4">📤 Upload Image for Attendance</h3>
               <div className="border-2 border-dashed border-gray-600 p-6 rounded-lg text-center">
                 <input 
@@ -623,7 +617,6 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
             
             {/* Audio Settings */}
             <div className="bg-gray-800 p-6 rounded-3xl">
-            <div className="bg-gray-800 p-6 rounded-lg">
               <h3 className="text-xl font-semibold text-white mb-4">🔊 Audio Settings</h3>
               <div className="flex items-center gap-4 mb-4">
                 <label className="flex items-center gap-2 text-white">
@@ -647,8 +640,6 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
 
             {/* Voice Assistant */}
             <div className="bg-gray-800 p-6 rounded-3xl">
-              <h3 className="text-xl font-semibold text-white mb-4">�� Voice Assistant</h3>
-            <div className="bg-gray-800 p-6 rounded-lg">
               <h3 className="text-xl font-semibold text-white mb-4">🎤 Voice Assistant</h3>
               <div className="flex gap-4 mb-4">
                 <button
@@ -696,7 +687,6 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
 
             {/* Text Query */}
             <div className="bg-gray-800 p-6 rounded-3xl">
-            <div className="bg-gray-800 p-6 rounded-lg">
               <h3 className="text-xl font-semibold text-white mb-4">💬 Text Query</h3>
               <div className="flex gap-4">
                 <textarea 
@@ -731,9 +721,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
 
             {/* Image Analysis */}
             <div className="bg-gray-800 p-6 rounded-3xl">
-            
-            <div className="bg-gray-800 p-6 rounded-lg">
-              <h3 className="text-xl font-semibold text-white mb-4">📸 Image Analysis</h3>
+              <h3 className="text-xl font-semibold text-white mb-4"> Image Analysis</h3>
               <div className="space-y-4">
                 <div className="border-2 border-dashed border-gray-600 p-6 rounded-lg text-center">
                   <ImageIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
@@ -797,7 +785,6 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
 
             {/* Knowledge Base Stats */}
             <div className="bg-gray-800 p-6 rounded-3xl">
-            <div className="bg-gray-800 p-6 rounded-lg">
               <h3 className="text-xl font-semibold text-white mb-4">📊 Knowledge Base Statistics</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="bg-gray-700 p-4 rounded-3xl">
@@ -840,7 +827,6 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
             
             {/* Attendance Analytics */}
             <div className="bg-gray-800 p-6 rounded-3xl">
-            <div className="bg-gray-800 p-6 rounded-lg">
               <h3 className="text-xl font-semibold text-white mb-4">📈 Attendance Analytics</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="bg-blue-600 p-4 rounded-3xl text-center">
@@ -871,7 +857,6 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
 
             {/* Usage Analytics */}
             <div className="bg-gray-800 p-6 rounded-3xl">
-            <div className="bg-gray-800 p-6 rounded-lg">
               <h3 className="text-xl font-semibold text-white mb-4">💬 Usage Analytics</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="bg-gray-700 p-4 rounded-3xl">

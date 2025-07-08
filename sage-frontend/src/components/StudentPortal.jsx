@@ -263,7 +263,7 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
   }
 
   const analyzeImage = async () => {
-    const fileInput = document.getElementById('imageFile')
+    const fileInput = document.getElementById('studentImageFileAnalysis')
     
     if (!fileInput?.files[0]) {
       alert("Please select an image file first!")
@@ -485,17 +485,17 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
             {/* Image Analysis */}
             <div className="bg-gray-800 p-6 rounded-3xl">
               <h3 className="text-xl font-semibold text-white mb-4">📸 Image Analysis</h3>
-              <div className="space-y-4">
-                <div className="border-2 border-dashed border-gray-600 p-6 rounded-3xl text-center">
-                  <ImageIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <div className="space-y-4 flex flex-col items-center">
+                <div className="input-div">
+                  <ImageIcon className="upload-icon" />
                   <input 
-                    id="imageFile"
+                    id="studentImageFileAnalysis"
                     type="file" 
-                    accept="image/*" 
-                    className="mb-4 text-white"
+                    accept="image/*"
+                    className="upload-input"
                   />
-                  <p className="text-gray-400 mb-4">Upload an image and ask questions about it</p>
                 </div>
+                <p className="text-gray-400 mt-4 mb-4 text-center">Click the animated circle to upload an image for analysis</p>
                 <textarea 
                   value={imageQuery}
                   onChange={(e) => setImageQuery(e.target.value)}
@@ -508,15 +508,8 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
                   className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-3xl transition-colors flex items-center gap-2"
                 >
                   <ImageIcon className="w-4 h-4" />
-                  Analyze Image
+                  Analyze
                 </button>
-                {imageResponse && (
-                  <div className="p-4 bg-green-900/30 rounded border">
-                    <h4 className="text-white font-semibold mb-2">🔍 Analysis:</h4>
-                    <div className="text-gray-300" dangerouslySetInnerHTML={formatExamContent(imageResponse)}>
-                  </div>
-                  </div>
-                )}
               </div>
             </div>
           </div>
