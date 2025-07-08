@@ -377,16 +377,45 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
                 <h3 className="text-xl font-semibold text-white">Audio Settings</h3>
                 <div className="flex items-center gap-4">
                   <label className="flex items-center gap-2 text-white">
-                    <input 
-                      type="checkbox" 
-                      checked={autoTTS}
-                      onChange={(e) => {
-                        setAutoTTS(e.target.checked)
-                        setTtsStatus(e.target.checked ? 'Auto-TTS enabled' : 'Auto-TTS disabled')
-                      }}
-                      className="rounded"
-                    />
-                    Auto-speak responses
+                    <span>Auto-speak responses</span>
+                    <label className="neon-checkbox">
+                      <input
+                        type="checkbox"
+                        checked={autoTTS}
+                        onChange={(e) => {
+                          setAutoTTS(e.target.checked)
+                          setTtsStatus(e.target.checked ? 'Auto-TTS enabled' : 'Auto-TTS disabled')
+                        }}
+                      />
+                      <div className="neon-checkbox__frame">
+                        <div className="neon-checkbox__box">
+                          <div className="neon-checkbox__check-container">
+                            <svg viewBox="0 0 24 24" className="neon-checkbox__check">
+                              <path d="M3,12.5l7,7L21,5"></path>
+                            </svg>
+                          </div>
+                          <div className="neon-checkbox__glow"></div>
+                          <div className="neon-checkbox__borders">
+                            <span></span><span></span><span></span><span></span>
+                          </div>
+                        </div>
+                        <div className="neon-checkbox__effects">
+                          <div className="neon-checkbox__particles">
+                            <span></span><span></span><span></span><span></span>
+                            <span></span><span></span><span></span><span></span>
+                            <span></span><span></span><span></span><span></span>
+                          </div>
+                          <div className="neon-checkbox__rings">
+                            <div className="ring"></div>
+                            <div className="ring"></div>
+                            <div className="ring"></div>
+                          </div>
+                          <div className="neon-checkbox__sparks">
+                            <span></span><span></span><span></span><span></span>
+                          </div>
+                        </div>
+                      </div>
+                    </label>
                   </label>
                   <button 
                     onClick={() => speakText("Hello! I'm SAGE, ready to help you learn.")}
@@ -686,7 +715,7 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
   return (
     <div className="min-h-screen dashboard-bg flex">
       {/* Sidebar */}
-      <div className="w-64 bg-gray-800 border-r border-gray-700">
+      <div className="w-64 bg-gray-800 border-r border-gray-700 sidebar-glass">
         <div className="p-6">
           <h1 className="text-2xl font-bold text-white">SAGE Student</h1>
           <p className="text-gray-400 text-sm">Smart AI Learning Portal</p>
@@ -698,13 +727,13 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
               <button
                 key={item.id}
                 onClick={() => setActiveTab(item.id)}
-                className={`w-full flex items-center gap-3 px-6 py-3 text-left transition-colors ${
+                className={`sidebar-item w-full flex items-center gap-3 px-6 py-3 text-left transition-colors ${
                   activeTab === item.id
-                    ? 'bg-blue-600 text-white'
+                    ? 'active bg-blue-600 text-white'
                     : 'text-gray-400 hover:text-white hover:bg-gray-700'
                 }`}
               >
-                <Icon className="w-5 h-5" />
+                <Icon className="w-5 h-5 sidebar-icon" />
                 {item.label}
               </button>
             )

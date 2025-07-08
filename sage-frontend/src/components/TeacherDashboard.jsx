@@ -645,13 +645,42 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
               <h3 className="text-xl font-semibold text-white mb-4">Audio Settings</h3>
               <div className="flex items-center gap-4 mb-4">
                 <label className="flex items-center gap-2 text-white">
-                  <input 
-                    type="checkbox" 
-                    checked={autoTTS}
-                    onChange={(e) => setAutoTTS(e.target.checked)}
-                    className="rounded"
-                  />
-                  Automatic Speech Output
+                  <span>Automatic Speech Output</span>
+                  <label className="neon-checkbox">
+                    <input
+                      type="checkbox"
+                      checked={autoTTS}
+                      onChange={(e) => setAutoTTS(e.target.checked)}
+                    />
+                    <div className="neon-checkbox__frame">
+                      <div className="neon-checkbox__box">
+                        <div className="neon-checkbox__check-container">
+                          <svg viewBox="0 0 24 24" className="neon-checkbox__check">
+                            <path d="M3,12.5l7,7L21,5"></path>
+                          </svg>
+                        </div>
+                        <div className="neon-checkbox__glow"></div>
+                        <div className="neon-checkbox__borders">
+                          <span></span><span></span><span></span><span></span>
+                        </div>
+                      </div>
+                      <div className="neon-checkbox__effects">
+                        <div className="neon-checkbox__particles">
+                          <span></span><span></span><span></span><span></span>
+                          <span></span><span></span><span></span><span></span>
+                          <span></span><span></span><span></span><span></span>
+                        </div>
+                        <div className="neon-checkbox__rings">
+                          <div className="ring"></div>
+                          <div className="ring"></div>
+                          <div className="ring"></div>
+                        </div>
+                        <div className="neon-checkbox__sparks">
+                          <span></span><span></span><span></span><span></span>
+                        </div>
+                      </div>
+                    </div>
+                  </label>
                 </label>
                 <button 
                   onClick={() => speakText("Hello! I'm SAGE, your smart classroom assistant.")}
@@ -882,42 +911,117 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
               <h3 className="text-xl font-semibold text-white mb-4">System Settings</h3>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-white">Auto-speak responses</span>
-                  <div className="checkbox-wrapper">
+                  <span className="text-white">Automatic Speech Output In class assistant</span>
+                  <label className="neon-checkbox">
                     <input
                       id="auto-tts-checkbox"
                       type="checkbox"
                       checked={autoTTS}
                       onChange={(e) => setAutoTTS(e.target.checked)}
                     />
-                    <label htmlFor="auto-tts-checkbox">
-                      <div className="tick_mark"></div>
-                    </label>
-                  </div>
+                    <div className="neon-checkbox__frame">
+                      <div className="neon-checkbox__box">
+                        <div className="neon-checkbox__check-container">
+                          <svg viewBox="0 0 24 24" className="neon-checkbox__check">
+                            <path d="M3,12.5l7,7L21,5"></path>
+                          </svg>
+                        </div>
+                        <div className="neon-checkbox__glow"></div>
+                        <div className="neon-checkbox__borders">
+                          <span></span><span></span><span></span><span></span>
+                        </div>
+                      </div>
+                      <div className="neon-checkbox__effects">
+                        <div className="neon-checkbox__particles">
+                          <span></span><span></span><span></span><span></span>
+                          <span></span><span></span><span></span><span></span>
+                          <span></span><span></span><span></span><span></span>
+                        </div>
+                        <div className="neon-checkbox__rings">
+                          <div className="ring"></div>
+                          <div className="ring"></div>
+                          <div className="ring"></div>
+                        </div>
+                        <div className="neon-checkbox__sparks">
+                          <span></span><span></span><span></span><span></span>
+                        </div>
+                      </div>
+                    </div>
+                  </label>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-white">Camera auto-start</span>
-                  <div className="checkbox-wrapper">
+                  <label className="neon-checkbox">
                     <input
                       id="camera-auto-checkbox"
                       type="checkbox"
                     />
-                    <label htmlFor="camera-auto-checkbox">
-                      <div className="tick_mark"></div>
-                    </label>
-                  </div>
+                    <div className="neon-checkbox__frame">
+                      <div className="neon-checkbox__box">
+                        <div className="neon-checkbox__check-container">
+                          <svg viewBox="0 0 24 24" className="neon-checkbox__check">
+                            <path d="M3,12.5l7,7L21,5"></path>
+                          </svg>
+                        </div>
+                        <div className="neon-checkbox__glow"></div>
+                        <div className="neon-checkbox__borders">
+                          <span></span><span></span><span></span><span></span>
+                        </div>
+                      </div>
+                      <div className="neon-checkbox__effects">
+                        <div className="neon-checkbox__particles">
+                          <span></span><span></span><span></span><span></span>
+                          <span></span><span></span><span></span><span></span>
+                          <span></span><span></span><span></span><span></span>
+                        </div>
+                        <div className="neon-checkbox__rings">
+                          <div className="ring"></div>
+                          <div className="ring"></div>
+                          <div className="ring"></div>
+                        </div>
+                        <div className="neon-checkbox__sparks">
+                          <span></span><span></span><span></span><span></span>
+                        </div>
+                      </div>
+                    </div>
+                  </label>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-white">Attendance notifications</span>
-                  <div className="checkbox-wrapper">
+                  <label className="neon-checkbox">
                     <input
                       id="attendance-notif-checkbox"
                       type="checkbox"
                     />
-                    <label htmlFor="attendance-notif-checkbox">
-                      <div className="tick_mark"></div>
-                    </label>
-                  </div>
+                    <div className="neon-checkbox__frame">
+                      <div className="neon-checkbox__box">
+                        <div className="neon-checkbox__check-container">
+                          <svg viewBox="0 0 24 24" className="neon-checkbox__check">
+                            <path d="M3,12.5l7,7L21,5"></path>
+                          </svg>
+                        </div>
+                        <div className="neon-checkbox__glow"></div>
+                        <div className="neon-checkbox__borders">
+                          <span></span><span></span><span></span><span></span>
+                        </div>
+                      </div>
+                      <div className="neon-checkbox__effects">
+                        <div className="neon-checkbox__particles">
+                          <span></span><span></span><span></span><span></span>
+                          <span></span><span></span><span></span><span></span>
+                          <span></span><span></span><span></span><span></span>
+                        </div>
+                        <div className="neon-checkbox__rings">
+                          <div className="ring"></div>
+                          <div className="ring"></div>
+                          <div className="ring"></div>
+                        </div>
+                        <div className="neon-checkbox__sparks">
+                          <span></span><span></span><span></span><span></span>
+                        </div>
+                      </div>
+                    </div>
+                  </label>
                 </div>
               </div>
             </div>
@@ -931,7 +1035,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
 
   return (
     <div className="min-h-screen dashboard-bg flex">
-      <div className="w-64 bg-gray-800 border-r border-gray-700">
+      <div className="w-64 bg-gray-800 border-r border-gray-700 sidebar-glass">
         <div className="p-6">
           <h1 className="text-2xl font-bold text-white">SAGE Teacher</h1>
           <p className="text-gray-400 text-sm">Smart AI Learning Portal</p>
@@ -943,13 +1047,13 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
               <button
                 key={item.id}
                 onClick={() => setActiveTab(item.id)}
-                className={`w-full flex items-center gap-3 px-6 py-3 text-left transition-colors ${
+                className={`sidebar-item w-full flex items-center gap-3 px-6 py-3 text-left transition-colors ${
                   activeTab === item.id
-                    ? 'bg-blue-600 text-white'
+                    ? 'active bg-blue-600 text-white'
                     : 'text-gray-400 hover:text-white hover:bg-gray-700'
                 }`}
               >
-                <Icon className="w-5 h-5" />
+                <Icon className="w-5 h-5 sidebar-icon" />
                 {item.label}
               </button>
             )
