@@ -18,6 +18,7 @@ import {
   Volume2,
   VolumeX
 } from "lucide-react"
+import FileUpload from "./ui/FileUpload";
 
 export function StudentPortal({ onLogout, userRole = "student" }) {
   const [activeTab, setActiveTab] = useState("assistant")
@@ -364,7 +365,7 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
         return (
           <div className="space-y-6">
             <div className="text-center mb-8">
-              <h2 className="text-4xl font-bold text-white mb-4">Ask SAGE Anything! 🧠</h2>
+              <h2 className="text-4xl font-bold text-white mb-4">Ask SAGE Anything!</h2>
               <p className="text-xl text-gray-300">Your personal AI tutor is here to help you learn</p>
             </div>
 
@@ -456,7 +457,7 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
                   onChange={(e) => setTextQuery(e.target.value)}
                   placeholder="Type your question here... (e.g., 'Explain photosynthesis', 'What is calculus?')"
                   rows="3"
-                  className="flex-1 p-4 bg-gray-700 text-white rounded border border-gray-600 resize-none focus:border-blue-500 focus:outline-none"
+                  className="flex-1 p-4 bg-gray-700 rounded border border-gray-600 resize-none focus:border-blue-500 focus:outline-none input text-black"
                   onKeyPress={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault()
@@ -485,31 +486,21 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
             {/* Image Analysis */}
             <div className="bg-gray-800 p-6 rounded-3xl">
               <h3 className="text-xl font-semibold text-white mb-4">📸 Image Analysis</h3>
-              <div className="space-y-4 flex flex-col items-center">
-                <div className="input-div">
-                  <ImageIcon className="upload-icon" />
-                  <input 
-                    id="studentImageFileAnalysis"
-                    type="file" 
-                    accept="image/*"
-                    className="upload-input"
-                  />
-                </div>
-                <p className="text-gray-400 mt-4 mb-4 text-center">Click the animated circle to upload an image for analysis</p>
-                <textarea 
+              <div className="flex flex-col items-center">
+                <FileUpload
+                  id="studentImageFileAnalysis"
+                  accept="image/*"
+                  onUpload={analyzeImage}
+                  buttonText="Analyze"
+                  status={imageResponse}
+                />
+                <textarea
                   value={imageQuery}
                   onChange={(e) => setImageQuery(e.target.value)}
                   placeholder="What would you like to know about this image?"
                   rows="2"
-                  className="w-full p-3 bg-gray-700 text-white rounded border border-gray-600 resize-none focus:border-green-500 focus:outline-none"
+                  className="w-full p-3 bg-gray-700 text-white rounded border border-gray-600 resize-none focus:border-green-500 focus:outline-none mt-4 input text-black"
                 />
-                <button 
-                  onClick={analyzeImage}
-                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-3xl transition-colors flex items-center gap-2"
-                >
-                  <ImageIcon className="w-4 h-4" />
-                  Analyze
-                </button>
               </div>
             </div>
           </div>
@@ -518,16 +509,16 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
       case "knowledge":
         return (
           <div className="space-y-6">
-            <h2 className="text-3xl font-bold text-white mb-6">📚 Knowledge Base</h2>
+            <h2 className="text-3xl font-bold text-white mb-6">Knowledge Base</h2>
             
             {/* Search Knowledge Base */}
             <div className="bg-gray-800 p-6 rounded-3xl">
-              <h3 className="text-xl font-semibold text-white mb-4">🔍 Search Knowledge Base</h3>
+              <h3 className="text-xl font-semibold text-white mb-4">Search Knowledge Base</h3>
               <div className="flex gap-4">
                 <input 
                   type="text"
                   placeholder="Search topics, subjects, or concepts..."
-                  className="flex-1 p-4 bg-gray-700 text-white rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
+                  className="flex-1 p-4 bg-gray-700 text-white rounded border border-gray-600 focus:border-blue-500 focus:outline-none input text-black"
                 />
                 <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-4 rounded-3xl transition-colors flex items-center gap-2">
                   <Search className="w-4 h-4" />
@@ -557,12 +548,12 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
 
            
             <div className="bg-gray-800 p-6 rounded-3xl">
-              <h3 className="text-xl font-semibold text-white mb-4">📄 Recent Documents</h3>
+              <h3 className="text-xl font-semibold text-white mb-4">Recent Documents</h3>
               <button 
                 onClick={loadIndexedPdfs}
                 className="mb-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-3xl transition-colors"
               >
-                🔄 Refresh Document List
+                Refresh Document List
               </button>
               {indexedPdfs.length === 0 ? (
                 <div className="text-gray-400 text-center py-8">
@@ -585,7 +576,7 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
       case "history":
         return (
           <div className="space-y-6">
-            <h2 className="text-3xl font-bold text-white mb-6">📖 Learning History</h2>
+            <h2 className="text-3xl font-bold text-white mb-6">Learning History</h2>
             
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -634,30 +625,17 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
       case "contribute":
         return (
           <div className="space-y-6">
-            <h2 className="text-3xl font-bold text-white mb-6">🤝 Contribute to Learning</h2>
+            <h2 className="text-3xl font-bold text-white mb-6">Contribute to Learning</h2>
             
             
             <div className="bg-gray-800 p-6 rounded-3xl">
-              <h3 className="text-xl font-semibold text-white mb-4">📤 Share Knowledge</h3>
-              <div className="border-2 border-dashed border-gray-600 p-8 rounded-3xl text-center">
-                <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <input 
-                  id="contributionFile"
-                  type="file" 
-                  accept=".pdf"
-                  className="mb-4 text-white"
-                />
-                <p className="text-gray-400 mb-4">
-                  Have useful study materials? Share them with your classmates!
-                </p>
-                <button 
-                  onClick={uploadContribution}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-3xl transition-colors"
-                >
-                  📤 Upload PDF to Knowledge Base
-                </button>
-              </div>
-              
+              <h3 className="text-xl font-semibold text-white mb-4">Share Knowledge</h3>
+              <FileUpload
+                id="contributionFile"
+                accept=".pdf"
+                onUpload={uploadContribution}
+                buttonText="📤 Upload PDF to Knowledge Base"
+              />
               <div className="mt-4 text-sm text-gray-400">
                 <p>✅ Accepted formats: PDF</p>
                 <p>📝 Note: All uploads are reviewed before being added to the knowledge base</p>
@@ -666,14 +644,14 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
 
             
             <div className="bg-gray-800 p-6 rounded-3xl">
-              <h3 className="text-xl font-semibold text-white mb-4">💬 Feedback & Suggestions</h3>
+              <h3 className="text-xl font-semibold text-white mb-4">Feedback & Suggestions</h3>
               <textarea 
                 placeholder="Share your feedback about SAGE or suggest improvements..."
                 rows="4"
-                className="w-full p-4 bg-gray-700 text-white rounded border border-gray-600 resize-none focus:border-blue-500 focus:outline-none"
+                className="w-full p-4 bg-gray-700 text-white rounded border border-gray-600 resize-none focus:border-blue-500 focus:outline-none input text-black"
               />
               <button className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-3xl transition-colors">
-                📤 Send Feedback
+                Send Feedback
               </button>
             </div>
 

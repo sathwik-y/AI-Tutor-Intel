@@ -20,6 +20,8 @@ import {
   VolumeX,
   Send
 } from "lucide-react"
+import FileUpload from "./ui/FileUpload";
+import AnimatedIconButton from "./ui/AnimatedIconButton";
 
 export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
   const [activeTab, setActiveTab] = useState("overview")
@@ -513,7 +515,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
             
             {/* Camera Controls */}
             <div className="bg-gray-800 p-6 rounded-3xl">
-              <h3 className="text-xl font-semibold text-white mb-4">📷 Live Camera</h3>
+              <h3 className="text-xl font-semibold text-white mb-4">Live Camera</h3>
               <div className="flex gap-4 mb-6">
                 <button
                   onClick={startCamera}
@@ -595,17 +597,13 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
 
             {/* File Upload */}
             <div className="bg-gray-800 p-6 rounded-3xl">
-              <h3 className="text-xl font-semibold text-white mb-4">📤 Upload Image for Attendance</h3>
-              <div className="border-2 border-dashed border-gray-600 p-6 rounded-lg text-center">
-                <input 
-                  type="file" 
-                  accept="image/*" 
-                  className="mb-4 text-white"
-                />
-                <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
-                  📊 Count Students from the Image
-                </button>
-              </div>
+              <h3 className="text-xl font-semibold text-white mb-4">Upload Image for Attendance</h3>
+              <FileUpload
+                id="teacherAttendanceImageFile"
+                accept="image/*"
+                onUpload={() => {/* TODO: implement attendance image upload handler */}}
+                buttonText="📊 Count Students from the Image"
+              />
             </div>
           </div>
         )
@@ -617,7 +615,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
             
             {/* Audio Settings */}
             <div className="bg-gray-800 p-6 rounded-3xl">
-              <h3 className="text-xl font-semibold text-white mb-4">🔊 Audio Settings</h3>
+              <h3 className="text-xl font-semibold text-white mb-4">Audio Settings</h3>
               <div className="flex items-center gap-4 mb-4">
                 <label className="flex items-center gap-2 text-white">
                   <input 
@@ -640,30 +638,23 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
 
             {/* Voice Assistant */}
             <div className="bg-gray-800 p-6 rounded-3xl">
-              <h3 className="text-xl font-semibold text-white mb-4">🎤 Voice Assistant</h3>
+              <h3 className="text-xl font-semibold text-white mb-4">Voice Assistant</h3>
               <div className="flex gap-4 mb-4">
-                <button
+                <AnimatedIconButton
+                  icon={<Mic className="icon" width={24} height={24} />}
+                  label={isRecording ? "Recording..." : "Start Listening"}
                   onClick={startRecording}
+                  color="#22c55e"
                   disabled={isRecording}
-                  className={`px-6 py-3 rounded-3xl transition-colors flex items-center gap-2 ${
-                    isRecording 
-                      ? 'bg-red-600 animate-pulse' 
-                      : 'bg-green-600 hover:bg-green-700'
-                  } text-white`}
-                >
-                  <Mic className="w-4 h-4" />
-                  {isRecording ? 'Recording...' : 'Start Listening'}
-                </button>
-                <button
+                />
+                <AnimatedIconButton
+                  icon={<Square className="icon" width={24} height={24} />}
+                  label="Stop & Process"
                   onClick={stopRecording}
+                  color="#ef4444"
                   disabled={!isRecording}
-                  className="bg-red-600 hover:bg-red-700 disabled:bg-gray-600 text-white px-6 py-3 rounded-3xl transition-colors flex items-center gap-2"
-                >
-                  <Square className="w-4 h-4" />
-                  Stop & Process
-                </button>
+                />
               </div>
-              
               <div className="text-sm text-gray-400 mb-4">
                 Status: {audioStatus}
               </div>
@@ -687,14 +678,14 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
 
             {/* Text Query */}
             <div className="bg-gray-800 p-6 rounded-3xl">
-              <h3 className="text-xl font-semibold text-white mb-4">💬 Text Query</h3>
+              <h3 className="text-xl font-semibold text-white mb-4">Text Query</h3>
               <div className="flex gap-4">
                 <textarea 
                   value={textQuery}
                   onChange={(e) => setTextQuery(e.target.value)}
                   placeholder="Ask SAGE anything about the course material..."
                   rows="3"
-                  className="flex-1 p-4 bg-gray-700 text-white rounded border border-gray-600 resize-none focus:border-purple-500 focus:outline-none"
+                  className="flex-1 p-4 bg-gray-700 text-black rounded border border-gray-600 resize-none focus:border-purple-500 focus:outline-none input"
                   onKeyPress={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault()
@@ -721,33 +712,21 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
 
             {/* Image Analysis */}
             <div className="bg-gray-800 p-6 rounded-3xl">
-              <h3 className="text-xl font-semibold text-white mb-4"> Image Analysis</h3>
-              <div className="space-y-4">
-                <div className="border-2 border-dashed border-gray-600 p-6 rounded-lg text-center">
-                  <ImageIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <input 
-                    id="teacherImageFileAnalysis"
-                    type="file" 
-                    accept="image/*"
-                    className="upload-input"
-                  />
-                </div>
-                <p className="text-gray-400 mt-4 mb-4 text-center">Click the animated circle to upload an image for analysis</p>
-                <textarea 
-                  value={imageQuery}
-                  onChange={(e) => setImageQuery(e.target.value)}
-                  placeholder="What would you like to know about this image?"
-                  rows="2"
-                  className="w-full p-3 bg-gray-700 text-white rounded border border-gray-600 resize-none focus:border-green-500 focus:outline-none"
-                />
-                <button 
-                  onClick={analyzeImage}
-                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-3xl transition-colors flex items-center gap-2"
-                >
-                  <ImageIcon className="w-4 h-4" />
-                  Analyze
-                </button>
-              </div>
+              <h3 className="text-xl font-semibold text-white mb-4">Image Analysis</h3>
+              <FileUpload
+                id="teacherImageFileAnalysis"
+                accept="image/*"
+                onUpload={analyzeImage}
+                buttonText="Analyze"
+                status={imageResponse}
+              />
+              <textarea
+                value={imageQuery}
+                onChange={(e) => setImageQuery(e.target.value)}
+                placeholder="What would you like to know about this image?"
+                rows="2"
+                className="w-full p-3 bg-gray-700 text-black rounded border border-gray-600 resize-none focus:border-green-500 focus:outline-none mt-4"
+              />
             </div>
           </div>
         )
@@ -758,34 +737,19 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
             <h2 className="text-3xl font-bold text-white mb-6">Knowledge Base Management</h2>
             
             <div className="bg-gray-800 p-6 rounded-3xl">
-              <h3 className="text-xl font-semibold text-white mb-4">📚 Upload Documents</h3>
-              <div className="flex flex-col items-center justify-center p-8">
-                <div className="input-div">
-                  <Upload className="upload-icon" />
-                  <input 
-                    id="teacherPdfFile"
-                    type="file" 
-                    accept=".pdf"
-                    className="upload-input"
-                  />
-                </div>
-                <p className="text-gray-400 mt-4 mb-4 text-center">Click the animated circle to upload PDF documents</p>
-                <button 
-                  onClick={uploadPDF}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-3xl transition-colors"
-                >
-                  📤 Upload PDF to Knowledge Base
-                </button>
-              </div>
-              
-              <div className="mt-4 text-sm text-gray-400 text-center">
-                {uploadStatus || "Status: Ready to upload documents"}
-              </div>
+              <h3 className="text-xl font-semibold text-white mb-4">Upload Documents</h3>
+              <FileUpload
+                id="teacherPdfFile"
+                accept=".pdf"
+                onUpload={uploadPDF}
+                buttonText="📤 Upload PDF to Knowledge Base"
+                status={uploadStatus || "Status: Ready to upload documents"}
+              />
             </div>
 
             {/* Knowledge Base Stats */}
             <div className="bg-gray-800 p-6 rounded-3xl">
-              <h3 className="text-xl font-semibold text-white mb-4">📊 Knowledge Base Statistics</h3>
+              <h3 className="text-xl font-semibold text-white mb-4">Knowledge Base Statistics</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="bg-gray-700 p-4 rounded-3xl">
                   <p className="text-gray-400 text-sm">Total Documents</p>
@@ -804,7 +768,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
                 onClick={loadIndexedPdfs}
                 className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-3xl transition-colors"
               >
-                🔄 Refresh Document List
+                Refresh Document List
               </button>
               {indexedPdfs.length > 0 && (
                 <div className="mt-6">
@@ -827,7 +791,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
             
             {/* Attendance Analytics */}
             <div className="bg-gray-800 p-6 rounded-3xl">
-              <h3 className="text-xl font-semibold text-white mb-4">📈 Attendance Analytics</h3>
+              <h3 className="text-xl font-semibold text-white mb-4">Attendance Analytics</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="bg-blue-600 p-4 rounded-3xl text-center">
                   <p className="text-2xl font-bold text-white">{attendanceStats.current}</p>
@@ -851,13 +815,13 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
                 onClick={loadAttendanceStats}
                 className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-3xl transition-colors"
               >
-                📈 Refresh Statistics
+                Refresh Statistics
               </button>
             </div>
 
             {/* Usage Analytics */}
             <div className="bg-gray-800 p-6 rounded-3xl">
-              <h3 className="text-xl font-semibold text-white mb-4">💬 Usage Analytics</h3>
+              <h3 className="text-xl font-semibold text-white mb-4">Usage Analytics</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="bg-gray-700 p-4 rounded-3xl">
                   <p className="text-gray-400 text-sm">Voice Queries</p>
@@ -876,7 +840,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
                 onClick={loadUsageStats}
                 className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-3xl transition-colors"
               >
-                📈 Refresh Usage Statistics
+                Refresh Usage Statistics
               </button>
             </div>
           </div>
@@ -888,7 +852,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
             <h2 className="text-3xl font-bold text-white mb-6">Settings</h2>
             
             <div className="bg-gray-800 p-6 rounded-3xl">
-              <h3 className="text-xl font-semibold text-white mb-4">⚙️ System Settings</h3>
+              <h3 className="text-xl font-semibold text-white mb-4">System Settings</h3>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="text-white">Auto-speak responses</span>
