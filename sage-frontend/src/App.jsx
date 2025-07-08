@@ -17,7 +17,7 @@ function App() {
 
   const handleRoleSelect = (role) => {
     setUserRole(role)
-    setShowRoleSelectionModal(false) // Close modal after role selection
+    setShowRoleSelectionModal(false) 
     if (role === "teacher") {
       setCurrentPage("teacher-dashboard")
     } else {
@@ -81,13 +81,12 @@ function App() {
           <div className="max-w-3xl text-center">
             <h1 className="text-5xl md:text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-600 font-poppins mb-2">SAGE</h1>
             <p className="text-lg md:text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-600 font-inter mb-1">
-              Smart AI Guided for Education
+              Smart AI Guide for Education
             </p>
             <p className="text-lg md:text-xl font-normal text-white font-poppins mb-4">
               Learn Smarter with your classroom tutor
             </p>
 
-            {/* Buttons */}
             <div className="flex flex-col sm:flex-row gap-6 justify-center">
               <HoverButton
                 text="Student"
@@ -105,7 +104,6 @@ function App() {
           </div>
         </main>
 
-        {/* Footer */}
         <footer className="w-full p-4 text-center text-gray-400">
           <p>© {new Date().getFullYear()} SAGE. All rights reserved.</p>
         </footer>
