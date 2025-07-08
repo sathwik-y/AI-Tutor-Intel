@@ -34,20 +34,16 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
   })
   const [usageStats, setUsageStats] = useState({ voice: 0, text: 0, image: 0 })
 
-  // Helper function to format exam content using marked
   const formatExamContent = (rawText) => {
     if (!rawText) return { __html: '' };
-    // Pre-process specific headings like "### UNIT -1" to "### UNIT 1" and ensure a newline before them
     const processedText = rawText.replace(/^(### UNIT -)(\d+)/gm, '\n### UNIT $2');
     return { __html: marked.parse(processedText) };
   };
 
-  // Audio states
   const [transcript, setTranscript] = useState("Transcript will appear here...")
   const [llmResponse, setLlmResponse] = useState("Response will appear here...")
   const [audioStatus, setAudioStatus] = useState("Ready to listen...")
   
-  // Text and Image states
   const [textQuery, setTextQuery] = useState("")
   const [textResponse, setTextResponse] = useState("")
   const [conversationHistory, setConversationHistory] = useState(() => {
@@ -68,20 +64,16 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
   const [uploadStatus, setUploadStatus] = useState("")
   const [indexedPdfs, setIndexedPdfs] = useState([])
   
-  // Camera refs
   const videoRef = useRef(null)
   const canvasRef = useRef(null)
   const cameraStreamRef = useRef(null)
 
-  // WebSocket and MediaRecorder refs
   const socketRef = useRef(null)
   const mediaRecorderRef = useRef(null)
   const streamRef = useRef(null)
 
-  // TTS Audio ref
   const currentAudioRef = useRef(null)
 
-  // Navigation items
   const navItems = [
     { id: "overview", label: "Overview", icon: Home },
     { id: "attendance", label: "Live Head Count", icon: Camera },
@@ -91,12 +83,10 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
     { id: "settings", label: "Settings", icon: Settings }
   ]
 
-  // Auto-speak function
   const speakText = async (text) => {
     if (!autoTTS || !text) return
 
     try {
-      // Stop any currently playing audio
       if (currentAudioRef.current) {
         currentAudioRef.current.pause()
         currentAudioRef.current = null
@@ -110,11 +100,8 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
 
       if (response.ok) {
         const data = await response.json()
-        
-        // Construct the full URL for the audio file
         const audioUrl = getAudioUrl(data.audio_url)
         
-        // Play the generated audio
         currentAudioRef.current = new Audio(audioUrl)
         
         currentAudioRef.current.oncanplay = () => {
@@ -137,10 +124,8 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
     }
   }
 
-  // Audio recording functions
   const startRecording = async () => {
     try {
-      // Connect WebSocket
       socketRef.current = new WebSocket(API_ENDPOINTS.WEBSOCKET_TRANSCRIBE)
       
       socketRef.current.onopen = () => {
@@ -172,8 +157,6 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
             break
         }
       }
-
-      // Get microphone access
       streamRef.current = await navigator.mediaDevices.getUserMedia({ 
         audio: { sampleRate: 16000, channelCount: 1, echoCancellation: true } 
       })
@@ -200,7 +183,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
 
   const pollForAudioResponse = async () => {
     let attempts = 0;
-    const maxAttempts = 30; // Poll for 30 seconds
+    const maxAttempts = 30; 
 
     const intervalId = setInterval(async () => {
       if (attempts >= maxAttempts) {
@@ -225,7 +208,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
         console.error("Polling error:", error);
       }
       attempts++;
-    }, 1000); // Poll every second
+    }, 1000); 
   };
 
   const stopRecording = () => {
@@ -247,7 +230,6 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
     pollForAudioResponse();
   }
 
-  // Text query function
   const submitTextQuery = async () => {
     if (!textQuery.trim()) return
 
@@ -275,9 +257,8 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
     }
   }
 
-  // Image analysis function
   const analyzeImage = async () => {
-    const fileInput = document.getElementById('teacherImageFile')
+    const fileInput = document.getElementById('teacherImageFileAnalysis')
     
     if (!fileInput?.files[0]) {
       alert("Please select an image file first!")
@@ -309,8 +290,6 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
       setImageResponse(`Error: ${error.message}`)
     }
   }
-
-  // PDF upload function
   const uploadPDF = async () => {
     const fileInput = document.getElementById('teacherPdfFile')
     if (!fileInput?.files[0]) {
@@ -338,7 +317,6 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
     }
   }
 
-  // Load indexed PDFs
   const loadIndexedPdfs = async () => {
     try {
       const response = await fetch(API_ENDPOINTS.KNOWLEDGE_PDFS)
@@ -349,7 +327,6 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
     }
   }
 
-  // Camera functions
   const startCamera = async () => {
     try {
       cameraStreamRef.current = await navigator.mediaDevices.getUserMedia({ 
@@ -365,7 +342,6 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
         videoRef.current.play()
         setCameraActive(true)
         
-        // Start live detection
         const detectInterval = setInterval(() => {
           if (!cameraStreamRef.current) {
             clearInterval(detectInterval)
@@ -427,7 +403,6 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
     }
   }
 
-  // Load attendance stats
   const loadAttendanceStats = async () => {
     try {
       const response = await fetch(API_ENDPOINTS.ATTENDANCE_STATS)
@@ -444,7 +419,6 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
     }
   }
 
-  // Load usage stats
   const loadUsageStats = async () => {
     try {
       const response = await fetch(API_ENDPOINTS.ANALYTICS_USAGE)
@@ -455,14 +429,12 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
     }
   }
 
-  // Load stats on component mount and cleanup
   useEffect(() => {
     loadAttendanceStats()
     loadUsageStats()
     loadIndexedPdfs()
     
     return () => {
-      // Cleanup audio on unmount
       if (currentAudioRef.current) {
         currentAudioRef.current.pause()
         currentAudioRef.current = null
@@ -470,7 +442,6 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
     }
   }, [])
 
-  // Render different tab contents
   const renderTabContent = () => {
     switch (activeTab) {
       case "overview":
@@ -478,7 +449,6 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
           <div className="space-y-6">
             <h2 className="text-3xl font-bold text-white mb-6">Dashboard Overview</h2>
             
-            {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
               <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-6 rounded-3xl">
                 <div className="text-white">
@@ -508,6 +478,8 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
 
             {/* Quick Actions */}
             <div className="bg-gray-800 p-6 rounded-3xl">
+            
+            <div className="bg-gray-800 p-6 rounded-lg">
               <h3 className="text-xl font-semibold text-white mb-4">Quick Actions</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <button 
@@ -543,6 +515,8 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
             
             {/* Camera Controls */}
             <div className="bg-gray-800 p-6 rounded-3xl">
+            
+            <div className="bg-gray-800 p-6 rounded-lg">
               <h3 className="text-xl font-semibold text-white mb-4">📷 Live Camera</h3>
               <div className="flex gap-4 mb-6">
                 <button
@@ -625,15 +599,17 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
 
             {/* File Upload */}
             <div className="bg-gray-800 p-6 rounded-3xl">
+            
+            <div className="bg-gray-800 p-6 rounded-lg">
               <h3 className="text-xl font-semibold text-white mb-4">📤 Upload Image for Attendance</h3>
-              <div className="border-2 border-dashed border-gray-600 p-6 rounded-3xl text-center">
+              <div className="border-2 border-dashed border-gray-600 p-6 rounded-lg text-center">
                 <input 
                   type="file" 
                   accept="image/*" 
                   className="mb-4 text-white"
                 />
-                <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-3xl transition-colors">
-                  📊 Count Students from Image
+                <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
+                  📊 Count Students from the Image
                 </button>
               </div>
             </div>
@@ -647,6 +623,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
             
             {/* Audio Settings */}
             <div className="bg-gray-800 p-6 rounded-3xl">
+            <div className="bg-gray-800 p-6 rounded-lg">
               <h3 className="text-xl font-semibold text-white mb-4">🔊 Audio Settings</h3>
               <div className="flex items-center gap-4 mb-4">
                 <label className="flex items-center gap-2 text-white">
@@ -671,6 +648,8 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
             {/* Voice Assistant */}
             <div className="bg-gray-800 p-6 rounded-3xl">
               <h3 className="text-xl font-semibold text-white mb-4">�� Voice Assistant</h3>
+            <div className="bg-gray-800 p-6 rounded-lg">
+              <h3 className="text-xl font-semibold text-white mb-4">🎤 Voice Assistant</h3>
               <div className="flex gap-4 mb-4">
                 <button
                   onClick={startRecording}
@@ -717,6 +696,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
 
             {/* Text Query */}
             <div className="bg-gray-800 p-6 rounded-3xl">
+            <div className="bg-gray-800 p-6 rounded-lg">
               <h3 className="text-xl font-semibold text-white mb-4">💬 Text Query</h3>
               <div className="flex gap-4">
                 <textarea 
@@ -751,18 +731,20 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
 
             {/* Image Analysis */}
             <div className="bg-gray-800 p-6 rounded-3xl">
+            
+            <div className="bg-gray-800 p-6 rounded-lg">
               <h3 className="text-xl font-semibold text-white mb-4">📸 Image Analysis</h3>
               <div className="space-y-4">
-                <div className="border-2 border-dashed border-gray-600 p-6 rounded-3xl text-center">
+                <div className="border-2 border-dashed border-gray-600 p-6 rounded-lg text-center">
                   <ImageIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                   <input 
-                    id="teacherImageFile"
+                    id="teacherImageFileAnalysis"
                     type="file" 
-                    accept="image/*" 
-                    className="mb-4 text-white"
+                    accept="image/*"
+                    className="upload-input"
                   />
-                  <p className="text-gray-400 mb-4">Upload an image and ask questions about it</p>
                 </div>
+                <p className="text-gray-400 mt-4 mb-4 text-center">Click the animated circle to upload an image for analysis</p>
                 <textarea 
                   value={imageQuery}
                   onChange={(e) => setImageQuery(e.target.value)}
@@ -775,14 +757,8 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
                   className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-3xl transition-colors flex items-center gap-2"
                 >
                   <ImageIcon className="w-4 h-4" />
-                  Analyze Image
+                  Analyze
                 </button>
-                {imageResponse && (
-                  <div className="p-4 bg-green-900/30 rounded border">
-                    <h4 className="text-white font-semibold mb-2">🔍 Analysis:</h4>
-                    <div className="text-gray-300" dangerouslySetInnerHTML={formatExamContent(imageResponse)} />
-                  </div>
-                )}
               </div>
             </div>
           </div>
@@ -821,6 +797,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
 
             {/* Knowledge Base Stats */}
             <div className="bg-gray-800 p-6 rounded-3xl">
+            <div className="bg-gray-800 p-6 rounded-lg">
               <h3 className="text-xl font-semibold text-white mb-4">📊 Knowledge Base Statistics</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="bg-gray-700 p-4 rounded-3xl">
@@ -863,6 +840,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
             
             {/* Attendance Analytics */}
             <div className="bg-gray-800 p-6 rounded-3xl">
+            <div className="bg-gray-800 p-6 rounded-lg">
               <h3 className="text-xl font-semibold text-white mb-4">📈 Attendance Analytics</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="bg-blue-600 p-4 rounded-3xl text-center">
@@ -893,6 +871,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
 
             {/* Usage Analytics */}
             <div className="bg-gray-800 p-6 rounded-3xl">
+            <div className="bg-gray-800 p-6 rounded-lg">
               <h3 className="text-xl font-semibold text-white mb-4">💬 Usage Analytics</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="bg-gray-700 p-4 rounded-3xl">
@@ -961,7 +940,6 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
 
   return (
     <div className="min-h-screen bg-gray-900 flex">
-      {/* Sidebar */}
       <div className="w-64 bg-gray-800 border-r border-gray-700">
         <div className="p-6">
           <h1 className="text-2xl font-bold text-white">SAGE Teacher</h1>
@@ -994,7 +972,6 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
           </button>
         </nav>
       </div>
-      {/* Main Content */}
       <div className="flex-1 overflow-y-auto">
         <div className="p-8">
           {renderTabContent()}

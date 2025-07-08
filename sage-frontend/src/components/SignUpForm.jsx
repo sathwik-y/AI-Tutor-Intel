@@ -82,7 +82,7 @@ export function SignUpForm({ onBack, onSignUpSuccess }) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-900 via-teal-800 to-cyan-900 flex items-center justify-center p-4">
       <div className="w-full max-w-2xl">
-        {/* Back button */}
+        
         <div className="mb-8">
           <button
             onClick={onBack}
@@ -92,7 +92,7 @@ export function SignUpForm({ onBack, onSignUpSuccess }) {
           </button>
         </div>
 
-        {/* Progress indicator */}
+        
         <div className="mb-8">
           <div className="flex justify-center space-x-2">
             {steps.map((_, index) => (
@@ -107,13 +107,13 @@ export function SignUpForm({ onBack, onSignUpSuccess }) {
           </div>
         </div>
 
-        {/* Form content */}
+        
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">{currentStepData.title}</h1>
           <p className="text-xl md:text-2xl text-gray-200">{currentStepData.subtitle}</p>
         </div>
 
-        {/* Input form */}
+        
         <div className="mb-8">
           <PlaceholdersAndVanishInput
             placeholders={currentStepData.placeholders}
@@ -124,7 +124,7 @@ export function SignUpForm({ onBack, onSignUpSuccess }) {
           />
         </div>
 
-        {/* Google Sign Up - only show on first step */}
+        
         {currentStep === 0 && (
           <div className="mb-8">
             <div className="flex items-center justify-center mb-6">
@@ -161,7 +161,7 @@ export function SignUpForm({ onBack, onSignUpSuccess }) {
           </div>
         )}
 
-        {/* Navigation */}
+        
         <div className="flex justify-center space-x-4">
           {currentStep > 0 && (
             <button
