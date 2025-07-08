@@ -48,19 +48,15 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
   
   const [textQuery, setTextQuery] = useState("")
   const [textResponse, setTextResponse] = useState("")
-  const [conversationHistory, setConversationHistory] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const savedHistory = localStorage.getItem('chatHistory');
-      return savedHistory ? JSON.parse(savedHistory) : [];
-    }
-    return [];
-  });
+  const [conversationHistory, setConversationHistory] = useState([]);
 
+  // Session-only memory - no localStorage persistence
   useEffect(() => {
+    // Clear any existing localStorage on component mount
     if (typeof window !== 'undefined') {
-      localStorage.setItem('chatHistory', JSON.stringify(conversationHistory));
+      localStorage.removeItem('chatHistory');
     }
-  }, [conversationHistory]);
+  }, []);
   const [imageQuery, setImageQuery] = useState("")
   const [imageResponse, setImageResponse] = useState("")
   const [uploadStatus, setUploadStatus] = useState("")
@@ -84,6 +80,13 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
     { id: "analytics", label: "Analytics", icon: BarChart3 },
     { id: "settings", label: "Settings", icon: Settings }
   ]
+
+  const clearChatHistory = () => {
+    setConversationHistory([]);
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('chatHistory');
+    }
+  };
 
   const speakText = async (text) => {
     if (!autoTTS || !text) return
@@ -251,7 +254,11 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
       const data = await response.json()
       setTextResponse(data.answer)
       speakText(data.answer)
-      setConversationHistory(prev => [...prev, { role: 'user', content: textQuery }, { role: 'assistant', content: data.answer }]);
+      setConversationHistory(prev => {
+        const newHistory = [...prev, { role: 'user', content: textQuery }, { role: 'assistant', content: data.answer }];
+        // Keep only last 15 conversation turns (30 messages total)
+        return newHistory.slice(-30);
+      });
       loadUsageStats()
       
     } catch (error) {
@@ -760,7 +767,15 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
               
               {textResponse && (
                 <div className="mt-4 p-4 bg-purple-900/30 rounded border">
-                  <h4 className="text-white font-semibold mb-2">🤖 Answer:</h4>
+                  <div className="flex justify-between items-center mb-2">
+                    <h4 className="text-white font-semibold">🤖 Answer:</h4>
+                    <button 
+                      onClick={clearChatHistory}
+                      className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm"
+                    >
+                      Clear Chat History
+                    </button>
+                  </div>
                   <div className="text-gray-300" dangerouslySetInnerHTML={formatExamContent(textResponse)} />
                 </div>
               )}
