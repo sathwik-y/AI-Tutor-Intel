@@ -9,8 +9,16 @@ executor = ThreadPoolExecutor(max_workers=1)
 def _generate_response_with_context(query: str, history: list[dict]) -> str:
     """Generate response using RAG - retrieves PDF context first"""
     
-    # Step 1: Retrieve relevant context from uploaded PDFs
-    relevant_context = get_relevant_context(query, k=3)  # Reduced k to avoid token overflow
+    # Step 1: Only retrieve context for educational/academic queries
+    educational_keywords = ["explain", "what is", "how does", "define", "algorithm", "learning", "agent", "search", "heuristic", "ai", "artificial intelligence", "machine learning", "neural", "optimization", "problem solving", "knowledge", "reasoning", "logic", "probability", "statistics", "data", "model", "training", "prediction", "classification", "clustering", "regression", "supervised", "unsupervised", "reinforcement"]
+    
+    query_lower = query.lower()
+    is_educational_query = any(keyword in query_lower for keyword in educational_keywords) or len(query.split()) > 3
+    
+    if is_educational_query:
+        relevant_context = get_relevant_context(query, k=3)
+    else:
+        relevant_context = "No knowledge base loaded"  # Skip context for simple queries
     
     # Step 2: Create simple, general prompts
     conversation_history_str = ""

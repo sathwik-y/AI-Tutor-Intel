@@ -34,19 +34,15 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
   const [textResponse, setTextResponse] = useState("")
   const [imageResponse, setImageResponse] = useState("")
   const [indexedPdfs, setIndexedPdfs] = useState([])
-  const [conversationHistory, setConversationHistory] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const savedHistory = localStorage.getItem('studentChatHistory');
-      return savedHistory ? JSON.parse(savedHistory) : [];
-    }
-    return [];
-  });
+  const [conversationHistory, setConversationHistory] = useState([]);
 
+  // Session-only memory - no localStorage persistence
   useEffect(() => {
+    // Clear any existing localStorage on component mount
     if (typeof window !== 'undefined') {
-      localStorage.setItem('studentChatHistory', JSON.stringify(conversationHistory));
+      localStorage.removeItem('studentChatHistory');
     }
-  }, [conversationHistory]);
+  }, []);
 
   const formatExamContent = (rawText) => {
     if (!rawText) return { __html: '' };
@@ -68,6 +64,13 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
     { id: "history", label: "Learning History", icon: History },
     { id: "contribute", label: "Contribute", icon: Upload }
   ]
+
+  const clearChatHistory = () => {
+    setConversationHistory([]);
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('studentChatHistory');
+    }
+  };
 
   const speakText = async (text) => {
     if (!autoTTS || !text) return
@@ -256,7 +259,11 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
       speakText(data.answer)
       
       addToHistory('text', data.answer, textQuery)
-      setConversationHistory(prev => [...prev, { role: 'user', content: textQuery }, { role: 'assistant', content: data.answer }]);
+      setConversationHistory(prev => {
+        const newHistory = [...prev, { role: 'user', content: textQuery }, { role: 'assistant', content: data.answer }];
+        // Keep only last 15 conversation turns (30 messages total)
+        return newHistory.slice(-30);
+      });
       
     } catch (error) {
       setTextResponse(`Error: ${error.message}`)
@@ -508,7 +515,15 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
               
               {textResponse && (
                 <div className="mt-4 p-4 bg-blue-900/30 rounded border">
-                  <h4 className="text-white font-semibold mb-2">🤖 Answer:</h4>
+                  <div className="flex justify-between items-center mb-2">
+                    <h4 className="text-white font-semibold">🤖 Answer:</h4>
+                    <button 
+                      onClick={clearChatHistory}
+                      className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm"
+                    >
+                      Clear Chat History
+                    </button>
+                  </div>
                   <div className="text-gray-300" dangerouslySetInnerHTML={formatExamContent(textResponse)}>
                   </div>
                 </div>

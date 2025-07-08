@@ -100,5 +100,29 @@ def get_relevant_context(query: str, k: int = 3) -> str:
 def get_indexed_pdf_names() -> list[str]:
     return indexed_pdf_names
 
-# Load knowledge base on module import
-load_knowledge_base()
+def clear_knowledge_base_on_startup():
+    """Clear knowledge base files and in-memory data when application starts"""
+    global texts, index, indexed_pdf_names
+    
+    # Clear in-memory data first
+    texts = []
+    index = None
+    indexed_pdf_names = []
+    
+    # Clear persisted files
+    try:
+        if os.path.exists(FAISS_INDEX_PATH):
+            os.remove(FAISS_INDEX_PATH)
+            print(f"Removed {FAISS_INDEX_PATH}")
+        if os.path.exists(TEXTS_PATH):
+            os.remove(TEXTS_PATH)
+            print(f"Removed {TEXTS_PATH}")
+        if os.path.exists(PDF_NAMES_PATH):
+            os.remove(PDF_NAMES_PATH)
+            print(f"Removed {PDF_NAMES_PATH}")
+        print("Knowledge base completely cleared - both memory and files")
+    except Exception as e:
+        print(f"Error clearing knowledge base on startup: {e}")
+
+# Initialize module variables - will be properly loaded after startup clearing
+# load_knowledge_base()  # Don't auto-load on import
