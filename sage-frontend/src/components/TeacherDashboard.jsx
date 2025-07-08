@@ -61,7 +61,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
       localStorage.setItem('chatHistory', JSON.stringify(conversationHistory));
     }
   }, [conversationHistory]);
-  const [imageQuery, setImageQuery] = useState("What information can you extract from this image?")
+  const [imageQuery, setImageQuery] = useState("")
   const [imageResponse, setImageResponse] = useState("")
   const [uploadStatus, setUploadStatus] = useState("")
   const [indexedPdfs, setIndexedPdfs] = useState([])
@@ -776,13 +776,15 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
                 buttonText="Analyze"
                 status={imageResponse}
               />
-              <textarea
-                value={imageQuery}
-                onChange={(e) => setImageQuery(e.target.value)}
-                placeholder="What would you like to know about this image?"
-                rows="2"
-                className="w-full p-3 bg-gray-700 text-black rounded border border-gray-600 resize-none focus:border-green-500 focus:outline-none mt-4"
-              />
+              <div className="flex gap-4 mt-4">
+                <textarea
+                  value={imageQuery}
+                  onChange={(e) => setImageQuery(e.target.value)}
+                  placeholder="What would you like to know about this image?"
+                  rows="3"
+                  className="flex-1 p-4 bg-gray-700 text-black rounded border border-gray-600 resize-none focus:border-purple-500 focus:outline-none input"
+                />
+              </div>
             </div>
           </div>
         )

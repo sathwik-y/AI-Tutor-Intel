@@ -25,7 +25,7 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
   const [isRecording, setIsRecording] = useState(false)
   const [autoTTS, setAutoTTS] = useState(true)
   const [textQuery, setTextQuery] = useState("")
-  const [imageQuery, setImageQuery] = useState("What information can you extract from this image?")
+  const [imageQuery, setImageQuery] = useState("")
   
   const [transcript, setTranscript] = useState("Transcript will appear here...")
   const [llmResponse, setLlmResponse] = useState("Response will appear here...")
