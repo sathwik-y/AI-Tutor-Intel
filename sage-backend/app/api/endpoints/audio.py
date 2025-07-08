@@ -56,10 +56,6 @@ async def websocket_transcribe(ws: WebSocket):
     except Exception as e:
         print(f"WebSocket error: {e}")
 
-# Add at the top after imports
-
-
-# Add this endpoint
 @router.get("/get-last-response")
 async def get_last_response():
     """Get the last transcription response"""
@@ -104,7 +100,7 @@ async def process_audio_and_respond(ws: WebSocket, audio_chunks: list):
                 "final_transcript": final_transcript
             }))
             
-            print("✅ Response sent to client - TTS should trigger")
+            print("Response sent to client - TTS should trigger")
             
             # Keep connection open briefly for TTS to process
             await asyncio.sleep(3)

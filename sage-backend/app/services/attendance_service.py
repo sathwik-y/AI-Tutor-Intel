@@ -4,7 +4,6 @@ import numpy as np
 from typing import List, Dict, Optional, Tuple
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
-import tempfile
 import os
 from datetime import datetime
 import json
@@ -26,10 +25,10 @@ class AttendanceTracker:
                 cv2.samples.findFile("opencv_face_detector.pbtxt")
             )
             self.use_dnn = True
-            print("✅ Using DNN face detection (more accurate)")
+            print("Using DNN face detection (more accurate)")
         except:
             self.use_dnn = False
-            print("✅ Using Haar Cascade face detection")
+            print("Using Haar Cascade face detection")
         
         self.attendance_records = []
         

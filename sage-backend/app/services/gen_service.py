@@ -1,7 +1,7 @@
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
 from app.core.rag import get_relevant_context
-from app.core.model import generate_from_model  # Correct function name
+from app.core.model import generate_from_model  
 
 # Create a thread pool for CPU-intensive tasks
 executor = ThreadPoolExecutor(max_workers=1)

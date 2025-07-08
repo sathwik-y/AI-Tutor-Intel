@@ -1,16 +1,9 @@
 # app/services/audio_service.py
 import os
 import tempfile
-import asyncio
-import numpy as np
-from typing import Optional
-import io
-import wave
 import subprocess
 
-# ------------------------------
-# FILE TRANSCRIPTION: Faster-Whisper
-# ------------------------------
+#File transcription using faster whisper
 from faster_whisper import WhisperModel
 model_whisper = WhisperModel("base", device="cpu", compute_type="int8")
 
@@ -28,9 +21,7 @@ async def transcribe_audio(file) -> str:
     os.remove(tmp_path)
     return transcript
 
-# ------------------------------
-# CHUNKED TRANSCRIPTION: Faster-Whisper with English
-# ------------------------------
+# Chunked Transcription
 async def transcribe_audio_chunk(data: bytes) -> str:
     """Perform transcription for a chunk of audio data."""
     try:
@@ -88,9 +79,7 @@ async def transcribe_audio_chunk(data: bytes) -> str:
 # Alias for compatibility with audio.py
 transcribe_chunk = transcribe_audio_chunk
 
-# ------------------------------
-# UTILITY FUNCTION (OPTIONAL)
-# ------------------------------
+# Optional Utility
 def is_valid_audio(data: bytes) -> bool:
     """Perform basic sanity check on received audio data."""
     return len(data) > 0

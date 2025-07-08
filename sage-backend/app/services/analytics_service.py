@@ -2,7 +2,6 @@
 from typing import Dict
 
 # A simple in-memory store for usage statistics.
-# In a production app, this would be a database (e.g., Redis, PostgreSQL).
 usage_stats: Dict[str, int] = {
     "voice": 0,
     "text": 0,

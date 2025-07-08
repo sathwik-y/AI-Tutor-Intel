@@ -1,5 +1,3 @@
-# Configuration settings for SAGE application
-
 # Model configuration - general purpose settings
 MODEL_CONFIG = {
     "model_path": "models/qwen2.5-optimized-int8", 

@@ -2,7 +2,6 @@ from optimum.intel.openvino import OVModelForCausalLM
 from transformers import AutoTokenizer
 import os
 import re
-import torch
 
 MODEL_PATH = os.path.join("models", "qwen2.5-optimized-int8")
 
@@ -21,7 +20,7 @@ if tokenizer.pad_token is None:
 def generate_from_model(prompt: str):
     """Generate response from Qwen2.5 model with proper configuration"""
     
-    # Add system prompt to establish SAGE's identity
+    # Add system prompt to establish models identity
     system_prompt = "You are SAGE, a classroom assistant. You help students and teachers ONLY with their classroom activities and lectures. Provide helpful, educational responses ONLY. If the question is not related to education, apologize and say you cannot answer that as you are a classroom assistant."
     
     # Format prompt properly for Qwen2.5 with system prompt

@@ -16,7 +16,7 @@ except ImportError:
 executor = ThreadPoolExecutor(max_workers=1)
 tts_engine = None
 
-# TTS Settings (can be modified)
+# TTS Settings
 TTS_SETTINGS = {
     'rate': 180,        # Speech rate (words per minute)
     'volume': 0.9,      # Volume (0.0 to 1.0)
@@ -28,7 +28,7 @@ def initialize_tts():
     global tts_engine, TTS_AVAILABLE
     
     if not TTS_AVAILABLE:
-        print("❌ TTS not available - pyttsx3 not installed")
+        print("TTS not available - pyttsx3 not installed")
         return False
     
     try:
@@ -44,13 +44,13 @@ def initialize_tts():
             # Try to use the configured voice index
             voice_index = min(TTS_SETTINGS['voice_index'], len(voices) - 1)
             tts_engine.setProperty('voice', voices[voice_index].id)
-            print(f"✅ Using voice: {voices[voice_index].name}")
+            print(f"Using voice: {voices[voice_index].name}")
         
-        print(f"✅ TTS initialized - Rate: {TTS_SETTINGS['rate']}, Volume: {TTS_SETTINGS['volume']}")
+        print(f"TTS initialized - Rate: {TTS_SETTINGS['rate']}, Volume: {TTS_SETTINGS['volume']}")
         return True
         
     except Exception as e:
-        print(f"❌ TTS initialization failed: {e}")
+        print(f"TTS initialization failed: {e}")
         TTS_AVAILABLE = False
         tts_engine = None
         return False
@@ -76,7 +76,7 @@ def update_tts_settings(rate: int = None, volume: float = None, voice_index: int
             if voices and 0 <= voice_index < len(voices):
                 TTS_SETTINGS['voice_index'] = voice_index
                 tts_engine.setProperty('voice', voices[voice_index].id)
-                print(f"✅ Voice changed to: {voices[voice_index].name}")
+                print(f"Voice changed to: {voices[voice_index].name}")
         
         return True
     except Exception as e:

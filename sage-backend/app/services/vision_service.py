@@ -1,9 +1,6 @@
 # app/services/vision_service.py
-import os
-import tempfile
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
-from typing import Optional
 from PIL import Image
 import io
 
@@ -12,10 +9,10 @@ try:
     from transformers import BlipProcessor, BlipForConditionalGeneration
     import torch
     VISION_AVAILABLE = True
-    print("✅ Vision AI dependencies available")
+    print("Vision AI dependencies available")
 except ImportError:
     VISION_AVAILABLE = False
-    print("❌ Vision AI not available - install transformers and torch")
+    print("Vision AI not available - install transformers and torch")
 
 # Global variables for model
 vision_processor = None
@@ -30,7 +27,7 @@ def initialize_vision():
         return False
     
     try:
-        print("🔄 Loading BLIP vision model...")
+        print("Loading BLIP vision model...")
         
         # Load BLIP model for image captioning and VQA
         model_name = "Salesforce/blip-image-captioning-base"
@@ -41,11 +38,11 @@ def initialize_vision():
         device = "cuda" if torch.cuda.is_available() else "cpu"
         vision_model.to(device)
         
-        print(f"✅ Vision model loaded successfully on {device}")
+        print(f"Vision model loaded successfully on {device}")
         return True
         
     except Exception as e:
-        print(f"❌ Vision model initialization failed: {e}")
+        print(f"Vision model initialization failed: {e}")
         VISION_AVAILABLE = False
         return False
 

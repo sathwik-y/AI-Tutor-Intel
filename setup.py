@@ -36,7 +36,7 @@ def check_node():
 
 def install_backend():
     """Install backend dependencies."""
-    print("\n=== Installing Backend Dependencies ===")
+    print("\nInstalling Backend Dependencies")
     backend_path = os.path.join(os.getcwd(), "sage-backend")
     if not os.path.exists(backend_path):
         print("Backend folder not found!")
@@ -51,7 +51,7 @@ def install_backend():
 
 def install_frontend():
     """Install frontend dependencies."""
-    print("\n=== Installing Frontend Dependencies ===")
+    print("\nInstalling Frontend Dependencies")
     frontend_path = os.path.join(os.getcwd(), "sage-frontend")
     if not os.path.exists(frontend_path):
         print("Frontend folder not found!")
@@ -61,7 +61,7 @@ def install_frontend():
 
 def start_backend():
     """Start the backend server."""
-    print("\n=== Starting Backend Server ===")
+    print("\nStarting Backend Server")
     backend_path = os.path.join(os.getcwd(), "sage-backend")
     if platform.system() == "Windows":
         subprocess.Popen([sys.executable, "run.py"], cwd=backend_path, shell=True)
@@ -70,7 +70,7 @@ def start_backend():
 
 def start_frontend():
     """Start the frontend development server."""
-    print("\n=== Starting Frontend Development Server ===")
+    print("\nStarting Frontend Development Server")
     frontend_path = os.path.join(os.getcwd(), "sage-frontend")
     if platform.system() == "Windows":
         subprocess.Popen(["npm", "run", "dev"], cwd=frontend_path, shell=True)
@@ -78,7 +78,7 @@ def start_frontend():
         subprocess.Popen(["npm", "run", "dev"], cwd=frontend_path)
 
 def main():
-    print("=== SAGE Project Setup ===")
+    print("SAGE Project Setup")
     print("This script will install dependencies and start both backend and frontend servers.")
     
     # Check prerequisites
@@ -89,18 +89,18 @@ def main():
         sys.exit(1)
     
     # Install dependencies
-    print("\n=== Installing Dependencies ===")
+    print("\nInstalling Dependencies")
     backend_success = install_backend()
     frontend_success = install_frontend()
     
     if not backend_success or not frontend_success:
-        print("\n❌ Dependency installation failed!")
+        print("\nDependency installation failed!")
         sys.exit(1)
     
-    print("\n✅ All dependencies installed successfully!")
+    print("\nAll dependencies installed successfully!")
     
     # Start servers
-    print("\n=== Starting Servers ===")
+    print("\nStarting Servers")
     start_backend()
     print("Backend server starting...")
     
@@ -110,7 +110,7 @@ def main():
     start_frontend()
     print("Frontend server starting...")
     
-    print("\n✅ Setup complete!")
+    print("\nSetup complete!")
     print("Backend server: http://localhost:8000")
     print("Frontend server: http://localhost:3000")
     print("\nPress Ctrl+C to stop the servers.")
