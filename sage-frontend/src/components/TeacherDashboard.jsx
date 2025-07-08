@@ -444,6 +444,9 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
     }
   }, [])
 
+  // State for interactive sparkle buttons
+  const [hoveredBtn, setHoveredBtn] = useState(null);
+
   const renderTabContent = () => {
     switch (activeTab) {
       case "overview":
@@ -452,25 +455,25 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
             <h2 className="text-3xl font-bold text-white mb-6">Dashboard Overview</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-6 rounded-3xl">
+              <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-6 rounded-3xl glass-card">
                 <div className="text-white">
                   <p className="text-sm opacity-80">Current Attendance</p>
                   <p className="text-3xl font-bold">{attendanceStats.current}</p>
                 </div>
               </div>
-              <div className="bg-gradient-to-r from-green-600 to-green-700 p-6 rounded-3xl">
+              <div className="bg-gradient-to-r from-green-600 to-green-700 p-6 rounded-3xl glass-card">
                 <div className="text-white">
                   <p className="text-sm opacity-80">Average Attendance</p>
                   <p className="text-3xl font-bold">{attendanceStats.average}</p>
                 </div>
               </div>
-              <div className="bg-gradient-to-r from-purple-600 to-purple-700 p-6 rounded-3xl">
+              <div className="bg-gradient-to-r from-purple-600 to-purple-700 p-6 rounded-3xl glass-card">
                 <div className="text-white">
                   <p className="text-sm opacity-80">Maximum Attendance</p>
                   <p className="text-3xl font-bold">{attendanceStats.maximum}</p>
                 </div>
               </div>
-              <div className="bg-gradient-to-r from-orange-600 to-orange-700 p-6 rounded-3xl">
+              <div className="bg-gradient-to-r from-orange-600 to-orange-700 p-6 rounded-3xl glass-card">
                 <div className="text-white">
                   <p className="text-sm opacity-80">Total Records</p>
                   <p className="text-3xl font-bold">{attendanceStats.records}</p>
@@ -479,26 +482,50 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
             </div>
 
             {/* Quick Actions */}
-            <div className="bg-gray-800 p-6 rounded-3xl">
+            <div className="bg-gray-800 p-6 rounded-3xl glass-card">
               <h3 className="text-xl font-semibold text-white mb-4">Quick Actions</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <button 
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <button
                   onClick={() => setActiveTab("attendance")}
-                  className="bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-3xl transition-colors flex items-center gap-2"
+                  className="sparkle-button text-white flex items-center gap-2"
+                  style={{
+                    '--active': hoveredBtn === 'attendance' ? 1 : 0,
+                    background: hoveredBtn === 'attendance' ? undefined : '#22c55e', // vibrant green
+                  }}
+                  onMouseEnter={() => setHoveredBtn('attendance')}
+                  onMouseLeave={() => setHoveredBtn(null)}
+                  onFocus={() => setHoveredBtn('attendance')}
+                  onBlur={() => setHoveredBtn(null)}
                 >
                   <Camera className="w-5 h-5" />
                   Start Attendance
                 </button>
-                <button 
+                <button
                   onClick={() => setActiveTab("assistant")}
-                  className="bg-green-600 hover:bg-green-700 text-white p-4 rounded-3xl transition-colors flex items-center gap-2"
+                  className="sparkle-button text-white flex items-center gap-2"
+                  style={{
+                    '--active': hoveredBtn === 'assistant' ? 1 : 0,
+                    background: hoveredBtn === 'assistant' ? undefined : '#2563eb', // vibrant blue
+                  }}
+                  onMouseEnter={() => setHoveredBtn('assistant')}
+                  onMouseLeave={() => setHoveredBtn(null)}
+                  onFocus={() => setHoveredBtn('assistant')}
+                  onBlur={() => setHoveredBtn(null)}
                 >
                   <Mic className="w-5 h-5" />
                   AI Assistant
                 </button>
-                <button 
+                <button
                   onClick={() => setActiveTab("knowledge")}
-                  className="bg-purple-600 hover:bg-purple-700 text-white p-4 rounded-3xl transition-colors flex items-center gap-2"
+                  className="sparkle-button text-white flex items-center gap-2"
+                  style={{
+                    '--active': hoveredBtn === 'knowledge' ? 1 : 0,
+                    background: hoveredBtn === 'knowledge' ? undefined : '#ef4444', // vibrant red
+                  }}
+                  onMouseEnter={() => setHoveredBtn('knowledge')}
+                  onMouseLeave={() => setHoveredBtn(null)}
+                  onFocus={() => setHoveredBtn('knowledge')}
+                  onBlur={() => setHoveredBtn(null)}
                 >
                   <BookOpen className="w-5 h-5" />
                   Manage Knowledge
@@ -514,7 +541,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
             <h2 className="text-3xl font-bold text-white mb-6">Live Head Count Tracking</h2>
             
             {/* Camera Controls */}
-            <div className="bg-gray-800 p-6 rounded-3xl">
+            <div className="bg-gray-800 p-6 rounded-3xl glass-card">
               <h3 className="text-xl font-semibold text-white mb-4">Live Camera</h3>
               <div className="flex gap-4 mb-6">
                 <button
@@ -596,7 +623,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
             </div>
 
             {/* File Upload */}
-            <div className="bg-gray-800 p-6 rounded-3xl">
+            <div className="bg-gray-800 p-6 rounded-3xl glass-card">
               <h3 className="text-xl font-semibold text-white mb-4">Upload Image for Attendance</h3>
               <FileUpload
                 id="teacherAttendanceImageFile"
@@ -614,7 +641,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
             <h2 className="text-3xl font-bold text-white mb-6">AI Class Assistant</h2>
             
             {/* Audio Settings */}
-            <div className="bg-gray-800 p-6 rounded-3xl">
+            <div className="bg-gray-800 p-6 rounded-3xl glass-card">
               <h3 className="text-xl font-semibold text-white mb-4">Audio Settings</h3>
               <div className="flex items-center gap-4 mb-4">
                 <label className="flex items-center gap-2 text-white">
@@ -637,7 +664,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
             </div>
 
             {/* Voice Assistant */}
-            <div className="bg-gray-800 p-6 rounded-3xl">
+            <div className="bg-gray-800 p-6 rounded-3xl glass-card">
               <h3 className="text-xl font-semibold text-white mb-4">Voice Assistant</h3>
               <div className="flex gap-4 mb-4">
                 <AnimatedIconButton
@@ -677,7 +704,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
             </div>
 
             {/* Text Query */}
-            <div className="bg-gray-800 p-6 rounded-3xl">
+            <div className="bg-gray-800 p-6 rounded-3xl glass-card">
               <h3 className="text-xl font-semibold text-white mb-4">Text Query</h3>
               <div className="flex gap-4">
                 <textarea 
@@ -711,7 +738,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
             </div>
 
             {/* Image Analysis */}
-            <div className="bg-gray-800 p-6 rounded-3xl">
+            <div className="bg-gray-800 p-6 rounded-3xl glass-card">
               <h3 className="text-xl font-semibold text-white mb-4">Image Analysis</h3>
               <FileUpload
                 id="teacherImageFileAnalysis"
@@ -736,7 +763,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
           <div className="space-y-6">
             <h2 className="text-3xl font-bold text-white mb-6">Knowledge Base Management</h2>
             
-            <div className="bg-gray-800 p-6 rounded-3xl">
+            <div className="bg-gray-800 p-6 rounded-3xl glass-card">
               <h3 className="text-xl font-semibold text-white mb-4">Upload Documents</h3>
               <FileUpload
                 id="teacherPdfFile"
@@ -748,7 +775,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
             </div>
 
             {/* Knowledge Base Stats */}
-            <div className="bg-gray-800 p-6 rounded-3xl">
+            <div className="bg-gray-800 p-6 rounded-3xl glass-card">
               <h3 className="text-xl font-semibold text-white mb-4">Knowledge Base Statistics</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="bg-gray-700 p-4 rounded-3xl">
@@ -790,7 +817,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
             <h2 className="text-3xl font-bold text-white mb-6">Analytics & Reports</h2>
             
             {/* Attendance Analytics */}
-            <div className="bg-gray-800 p-6 rounded-3xl">
+            <div className="bg-gray-800 p-6 rounded-3xl glass-card">
               <h3 className="text-xl font-semibold text-white mb-4">Attendance Analytics</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="bg-blue-600 p-4 rounded-3xl text-center">
@@ -820,7 +847,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
             </div>
 
             {/* Usage Analytics */}
-            <div className="bg-gray-800 p-6 rounded-3xl">
+            <div className="bg-gray-800 p-6 rounded-3xl glass-card">
               <h3 className="text-xl font-semibold text-white mb-4">Usage Analytics</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="bg-gray-700 p-4 rounded-3xl">
@@ -851,31 +878,46 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
           <div className="space-y-6">
             <h2 className="text-3xl font-bold text-white mb-6">Settings</h2>
             
-            <div className="bg-gray-800 p-6 rounded-3xl">
+            <div className="bg-gray-800 p-6 rounded-3xl glass-card">
               <h3 className="text-xl font-semibold text-white mb-4">System Settings</h3>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="text-white">Auto-speak responses</span>
-                  <input 
-                    type="checkbox" 
-                    checked={autoTTS}
-                    onChange={(e) => setAutoTTS(e.target.checked)}
-                    className="rounded"
-                  />
+                  <div className="checkbox-wrapper">
+                    <input
+                      id="auto-tts-checkbox"
+                      type="checkbox"
+                      checked={autoTTS}
+                      onChange={(e) => setAutoTTS(e.target.checked)}
+                    />
+                    <label htmlFor="auto-tts-checkbox">
+                      <div className="tick_mark"></div>
+                    </label>
+                  </div>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-white">Camera auto-start</span>
-                  <input 
-                    type="checkbox" 
-                    className="rounded"
-                  />
+                  <div className="checkbox-wrapper">
+                    <input
+                      id="camera-auto-checkbox"
+                      type="checkbox"
+                    />
+                    <label htmlFor="camera-auto-checkbox">
+                      <div className="tick_mark"></div>
+                    </label>
+                  </div>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-white">Attendance notifications</span>
-                  <input 
-                    type="checkbox" 
-                    className="rounded"
-                  />
+                  <div className="checkbox-wrapper">
+                    <input
+                      id="attendance-notif-checkbox"
+                      type="checkbox"
+                    />
+                    <label htmlFor="attendance-notif-checkbox">
+                      <div className="tick_mark"></div>
+                    </label>
+                  </div>
                 </div>
               </div>
             </div>
@@ -888,7 +930,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 flex">
+    <div className="min-h-screen dashboard-bg flex">
       <div className="w-64 bg-gray-800 border-r border-gray-700">
         <div className="p-6">
           <h1 className="text-2xl font-bold text-white">SAGE Teacher</h1>

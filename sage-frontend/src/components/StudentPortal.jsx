@@ -359,6 +359,9 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
     }
   }
 
+  // State for interactive sparkle category cards
+  const [hoveredCategory, setHoveredCategory] = useState(null);
+
   const renderTabContent = () => {
     switch (activeTab) {
       case "assistant":
@@ -369,9 +372,9 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
               <p className="text-xl text-gray-300">Your personal AI tutor is here to help you learn</p>
             </div>
 
-            <div className="bg-gray-800 p-6 rounded-3xl">
+            <div className="bg-gray-800 p-6 rounded-3xl glass-card">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-semibold text-white">🔊 Audio Settings</h3>
+                <h3 className="text-xl font-semibold text-white">Audio Settings</h3>
                 <div className="flex items-center gap-4">
                   <label className="flex items-center gap-2 text-white">
                     <input 
@@ -400,8 +403,8 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
             </div>
 
             {/* Voice Assistant */}
-            <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 rounded-3xl">
-              <h3 className="text-2xl font-semibold text-white mb-4">🎤 Voice Assistant</h3>
+            <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 rounded-3xl glass-card">
+              <h3 className="text-2xl font-semibold text-white mb-4">Voice Assistant</h3>
               <div className="flex gap-4 mb-4">
                 <button
                   onClick={startRecording}
@@ -430,7 +433,7 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
               </div>
               
               <div className="grid md:grid-cols-2 gap-4">
-                <div className="bg-white/10 p-4 rounded-3xl backdrop-blur">
+                <div className="bg-white/10 p-4 rounded-3xl backdrop-blur glass-card">
                   <h4 className="text-white font-semibold mb-2 flex items-center gap-2">
                     <Mic className="w-4 h-4" />
                     Your Question:
@@ -440,7 +443,7 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
                   </div>
                 </div>
                 
-                <div className="bg-white/10 p-4 rounded-3xl backdrop-blur">
+                <div className="bg-white/10 p-4 rounded-3xl backdrop-blur glass-card">
                   <h4 className="text-white font-semibold mb-2">🤖 SAGE's Answer:</h4>
                   <div className="text-white/90 min-h-[80px] p-2 bg-black/20 rounded" dangerouslySetInnerHTML={formatExamContent(llmResponse)}>
                   </div>
@@ -449,8 +452,8 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
             </div>
 
             {/* Text Query */}
-            <div className="bg-gray-800 p-6 rounded-3xl">
-              <h3 className="text-xl font-semibold text-white mb-4">💬 Type Your Question</h3>
+            <div className="bg-gray-800 p-6 rounded-3xl glass-card">
+              <h3 className="text-xl font-semibold text-white mb-4">Type Your Question</h3>
               <div className="flex gap-4">
                 <textarea 
                   value={textQuery}
@@ -484,8 +487,8 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
             </div>
 
             {/* Image Analysis */}
-            <div className="bg-gray-800 p-6 rounded-3xl">
-              <h3 className="text-xl font-semibold text-white mb-4">📸 Image Analysis</h3>
+            <div className="bg-gray-800 p-6 rounded-3xl glass-card">
+              <h3 className="text-xl font-semibold text-white mb-4">Image Analysis</h3>
               <div className="flex flex-col items-center">
                 <FileUpload
                   id="studentImageFileAnalysis"
@@ -499,7 +502,7 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
                   onChange={(e) => setImageQuery(e.target.value)}
                   placeholder="What would you like to know about this image?"
                   rows="2"
-                  className="w-full p-3 bg-gray-700 text-white rounded border border-gray-600 resize-none focus:border-green-500 focus:outline-none mt-4 input text-black"
+                  className="w-full p-3 bg-gray-700 rounded border border-gray-600 resize-none focus:border-green-500 focus:outline-none mt-4 input text-black"
                 />
               </div>
             </div>
@@ -512,13 +515,13 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
             <h2 className="text-3xl font-bold text-white mb-6">Knowledge Base</h2>
             
             {/* Search Knowledge Base */}
-            <div className="bg-gray-800 p-6 rounded-3xl">
+            <div className="bg-gray-800 p-6 rounded-3xl glass-card">
               <h3 className="text-xl font-semibold text-white mb-4">Search Knowledge Base</h3>
               <div className="flex gap-4">
                 <input 
                   type="text"
                   placeholder="Search topics, subjects, or concepts..."
-                  className="flex-1 p-4 bg-gray-700 text-white rounded border border-gray-600 focus:border-blue-500 focus:outline-none input text-black"
+                  className="flex-1 p-4 bg-gray-700 rounded border border-gray-600 focus:border-blue-500 focus:outline-none input text-black"
                 />
                 <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-4 rounded-3xl transition-colors flex items-center gap-2">
                   <Search className="w-4 h-4" />
@@ -527,27 +530,38 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
               </div>
             </div>
 
-            <div className="bg-gray-800 p-6 rounded-3xl">
+            <div className="bg-gray-800 p-6 rounded-3xl glass-card">
               <h3 className="text-xl font-semibold text-white mb-4">📂 Browse by Category</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {[
-                  { name: "Mathematics", count: "0 docs", color: "bg-blue-600" },
-                  { name: "Science", count: "0 docs", color: "bg-green-600" },
-                  { name: "History", count: "0 docs", color: "bg-purple-600" },
-                  { name: "Literature", count: "0 docs", color: "bg-red-600" },
-                  { name: "Computer Science", count: "0 docs", color: "bg-orange-600" },
-                  { name: "Languages", count: "0 docs", color: "bg-pink-600" }
+                  { name: "Mathematics", count: "0 docs", color: "#2563eb" },
+                  { name: "Science", count: "0 docs", color: "#059669" },
+                  { name: "History", count: "0 docs", color: "#ca8a04" },
+                  { name: "Literature", count: "0 docs", color: "#dc2626" },
+                  { name: "Computer Science", count: "0 docs", color: "#ea580c" },
+                  { name: "Languages", count: "0 docs", color: "#db2777" }
                 ].map((category, index) => (
-                  <div key={index} className={`${category.color} p-4 rounded-3xl text-white cursor-pointer hover:opacity-80 transition-opacity`}>
+                  <button
+                    key={index}
+                    className="sparkle-button w-full text-white flex flex-col items-start gap-1"
+                    style={{
+                      '--active': hoveredCategory === index ? 1 : 0,
+                      background: hoveredCategory === index ? undefined : category.color
+                    }}
+                    onMouseEnter={() => setHoveredCategory(index)}
+                    onMouseLeave={() => setHoveredCategory(null)}
+                    onFocus={() => setHoveredCategory(index)}
+                    onBlur={() => setHoveredCategory(null)}
+                  >
                     <h4 className="font-semibold">{category.name}</h4>
                     <p className="text-sm opacity-80">{category.count}</p>
-                  </div>
+                  </button>
                 ))}
               </div>
             </div>
 
            
-            <div className="bg-gray-800 p-6 rounded-3xl">
+            <div className="bg-gray-800 p-6 rounded-3xl glass-card">
               <h3 className="text-xl font-semibold text-white mb-4">Recent Documents</h3>
               <button 
                 onClick={loadIndexedPdfs}
@@ -595,7 +609,7 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
             </div>
 
             
-            <div className="bg-gray-800 p-6 rounded-3xl">
+            <div className="bg-gray-800 p-6 rounded-3xl glass-card">
               <h3 className="text-xl font-semibold text-white mb-4">Recent Learning Sessions</h3>
               
               {learningHistory.length === 0 ? (
@@ -628,7 +642,7 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
             <h2 className="text-3xl font-bold text-white mb-6">Contribute to Learning</h2>
             
             
-            <div className="bg-gray-800 p-6 rounded-3xl">
+            <div className="bg-gray-800 p-6 rounded-3xl glass-card">
               <h3 className="text-xl font-semibold text-white mb-4">Share Knowledge</h3>
               <FileUpload
                 id="contributionFile"
@@ -643,12 +657,12 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
             </div>
 
             
-            <div className="bg-gray-800 p-6 rounded-3xl">
+            <div className="bg-gray-800 p-6 rounded-3xl glass-card">
               <h3 className="text-xl font-semibold text-white mb-4">Feedback & Suggestions</h3>
               <textarea 
                 placeholder="Share your feedback about SAGE or suggest improvements..."
                 rows="4"
-                className="w-full p-4 bg-gray-700 text-white rounded border border-gray-600 resize-none focus:border-blue-500 focus:outline-none input text-black"
+                className="w-full p-4 bg-gray-700 rounded border border-gray-600 resize-none focus:border-blue-500 focus:outline-none input text-black"
               />
               <button className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-3xl transition-colors">
                 Send Feedback
@@ -656,7 +670,7 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
             </div>
 
             
-            <div className="bg-gray-800 p-6 rounded-3xl">
+            <div className="bg-gray-800 p-6 rounded-3xl glass-card">
               <h3 className="text-xl font-semibold text-white mb-4">👥 Study Groups</h3>
               <div className="text-gray-400 text-center py-8">
                 Study group features coming soon! Connect with classmates and learn together.
@@ -670,7 +684,7 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
   }
   
   return (
-    <div className="min-h-screen bg-gray-900 flex">
+    <div className="min-h-screen dashboard-bg flex">
       {/* Sidebar */}
       <div className="w-64 bg-gray-800 border-r border-gray-700">
         <div className="p-6">
