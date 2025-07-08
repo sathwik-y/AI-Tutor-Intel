@@ -26,7 +26,6 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
   const [textQuery, setTextQuery] = useState("")
   const [imageQuery, setImageQuery] = useState("What information can you extract from this image?")
   
-  // Audio states - ADD TTS status
   const [transcript, setTranscript] = useState("Transcript will appear here...")
   const [llmResponse, setLlmResponse] = useState("Response will appear here...")
   const [audioStatus, setAudioStatus] = useState("Ready to listen...")
@@ -47,27 +46,21 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
       localStorage.setItem('studentChatHistory', JSON.stringify(conversationHistory));
     }
   }, [conversationHistory]);
-  
-  // Helper function to format exam content
+
   const formatExamContent = (rawText) => {
     if (!rawText) return { __html: '' };
-    // Pre-process specific headings like "### UNIT -1" to "### UNIT 1" and ensure a newline before them
     const processedText = rawText.replace(/^(### UNIT -)(\d+)/gm, '\n### UNIT $2');
     return { __html: marked.parse(processedText) };
   };
   
-  // Learning history
   const [learningHistory, setLearningHistory] = useState([])
 
-  // WebSocket and MediaRecorder refs
   const socketRef = useRef(null)
   const mediaRecorderRef = useRef(null)
   const streamRef = useRef(null)
   
-  // TTS Audio ref
   const currentAudioRef = useRef(null)
 
-  // Navigation items for students
   const navItems = [
     { id: "assistant", label: "AI Assistant", icon: Mic },
     { id: "knowledge", label: "Browse Knowledge", icon: BookOpen },
@@ -75,12 +68,10 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
     { id: "contribute", label: "Contribute", icon: Upload }
   ]
 
-  // Auto-speak function - FIXED to handle audio URL properly
   const speakText = async (text) => {
     if (!autoTTS || !text) return
 
     try {
-      // Stop any currently playing audio
       if (currentAudioRef.current) {
         currentAudioRef.current.pause()
         currentAudioRef.current = null
@@ -97,10 +88,8 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
       if (response.ok) {
         const data = await response.json()
         
-        // Construct the full URL for the audio file
         const audioUrl = getAudioUrl(data.audio_url)
         
-        // Play the generated audio
         currentAudioRef.current = new Audio(audioUrl)
         
         currentAudioRef.current.onloadstart = () => {
@@ -135,11 +124,8 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
       setTtsStatus('TTS unavailable')
     }
   }
-
-  // Audio recording functions
   const startRecording = async () => {
     try {
-      // Connect WebSocket
       socketRef.current = new WebSocket(API_ENDPOINTS.WEBSOCKET_TRANSCRIBE)
       
       socketRef.current.onopen = () => {
@@ -166,7 +152,6 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
             setAudioStatus("✅ Complete! Ready for next question.")
             speakText(data.text)
             
-            // Add to learning history
             addToHistory('voice', data.text, transcript)
             break
           case 'error':
@@ -175,7 +160,6 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
         }
       }
 
-      // Get microphone access
       streamRef.current = await navigator.mediaDevices.getUserMedia({ 
         audio: { sampleRate: 16000, channelCount: 1, echoCancellation: true } 
       })
@@ -202,7 +186,7 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
 
   const pollForAudioResponse = async () => {
     let attempts = 0;
-    const maxAttempts = 30; // Poll for 30 seconds
+    const maxAttempts = 30; 
 
     const intervalId = setInterval(async () => {
       if (attempts >= maxAttempts) {
@@ -225,11 +209,10 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
           }
         }
       } catch (error) {
-        // This will keep polling on network error.
         console.error("Polling error:", error);
       }
       attempts++;
-    }, 1000); // Poll every second
+    }, 1000); 
   };
 
   const stopRecording = () => {
@@ -250,8 +233,7 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
     setAudioStatus("🔄 Processing your recording...")
     pollForAudioResponse();
   }
-
-  // Text query function - FIXED error handling
+  
   const submitTextQuery = async () => {
     if (!textQuery.trim()) return
 
@@ -272,7 +254,6 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
       setTextResponse(data.answer)
       speakText(data.answer)
       
-      // Add to learning history
       addToHistory('text', data.answer, textQuery)
       setConversationHistory(prev => [...prev, { role: 'user', content: textQuery }, { role: 'assistant', content: data.answer }]);
       
@@ -281,7 +262,6 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
     }
   }
 
-  // Image analysis function - FIXED error handling
   const analyzeImage = async () => {
     const fileInput = document.getElementById('imageFile')
     
@@ -310,7 +290,6 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
       setImageResponse(data.answer)
       speakText(data.answer)
       
-      // Add to learning history
       addToHistory('image', data.answer, imageQuery)
       
     } catch (error) {
@@ -318,7 +297,6 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
     }
   }
 
-  // Add to learning history
   const addToHistory = (type, response, query) => {
     const newEntry = {
       id: Date.now(),
@@ -331,7 +309,6 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
     setLearningHistory(prev => [newEntry, ...prev.slice(0, 49)]) // Keep last 50 entries
   }
 
-  // Upload contribution - FIXED to match client.html
   const uploadContribution = async () => {
     const fileInput = document.getElementById('contributionFile')
     if (!fileInput?.files[0]) {
@@ -356,9 +333,9 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
     }
   }
 
-  // Cleanup function - ADD this
+  
   useEffect(() => {
-    // Load indexed PDFs on mount
+    
     loadIndexedPdfs()
 
     return () => {
@@ -370,7 +347,7 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
     }
   }, [])
 
-  // Load indexed PDFs
+  
   const loadIndexedPdfs = async () => {
     try {
       const response = await fetch(API_ENDPOINTS.KNOWLEDGE_PDFS)
@@ -381,7 +358,6 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
     }
   }
 
-  // Render different tab contents
   const renderTabContent = () => {
     switch (activeTab) {
       case "assistant":
@@ -392,7 +368,6 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
               <p className="text-xl text-gray-300">Your personal AI tutor is here to help you learn</p>
             </div>
 
-            {/* Audio Settings */}
             <div className="bg-gray-800 p-6 rounded-lg">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-semibold text-white">🔊 Audio Settings</h3>
@@ -568,7 +543,6 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
               </div>
             </div>
 
-            {/* Knowledge Categories */}
             <div className="bg-gray-800 p-6 rounded-lg">
               <h3 className="text-xl font-semibold text-white mb-4">📂 Browse by Category</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -588,7 +562,7 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
               </div>
             </div>
 
-            {/* Recent Documents */}
+           
             <div className="bg-gray-800 p-6 rounded-lg">
               <h3 className="text-xl font-semibold text-white mb-4">📄 Recent Documents</h3>
               <button 
@@ -620,7 +594,7 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
           <div className="space-y-6">
             <h2 className="text-3xl font-bold text-white mb-6">📖 Learning History</h2>
             
-            {/* Stats */}
+            
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="bg-blue-600 p-6 rounded-lg text-center">
                 <p className="text-3xl font-bold text-white">{learningHistory.filter(h => h.type === 'voice').length}</p>
@@ -636,7 +610,7 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
               </div>
             </div>
 
-            {/* History List */}
+            
             <div className="bg-gray-800 p-6 rounded-lg">
               <h3 className="text-xl font-semibold text-white mb-4">Recent Learning Sessions</h3>
               
@@ -669,7 +643,7 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
           <div className="space-y-6">
             <h2 className="text-3xl font-bold text-white mb-6">🤝 Contribute to Learning</h2>
             
-            {/* Upload Documents - FIX file input ID */}
+            
             <div className="bg-gray-800 p-6 rounded-lg">
               <h3 className="text-xl font-semibold text-white mb-4">📤 Share Knowledge</h3>
               <div className="border-2 border-dashed border-gray-600 p-8 rounded-lg text-center">
@@ -697,7 +671,7 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
               </div>
             </div>
 
-            {/* Feedback */}
+            
             <div className="bg-gray-800 p-6 rounded-lg">
               <h3 className="text-xl font-semibold text-white mb-4">💬 Feedback & Suggestions</h3>
               <textarea 
@@ -710,7 +684,7 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
               </button>
             </div>
 
-            {/* Study Groups */}
+            
             <div className="bg-gray-800 p-6 rounded-lg">
               <h3 className="text-xl font-semibold text-white mb-4">👥 Study Groups</h3>
               <div className="text-gray-400 text-center py-8">
@@ -719,12 +693,11 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
             </div>
           </div>
         )
-
       default:
         return <div className="text-white">Content not found</div>
     }
   }
-
+  
   return (
     <div className="min-h-screen bg-gray-900 flex">
       {/* Sidebar */}
@@ -763,7 +736,6 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
         </nav>
       </div>
 
-      {/* Main Content */}
       <div className="flex-1 overflow-y-auto">
         <div className="p-8">
           {renderTabContent()}
