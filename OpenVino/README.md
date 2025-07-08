@@ -16,7 +16,7 @@ This project demonstrates how to:
 3. Optimize the model using OpenVINO with INT8 quantization
 4. Compare the performance before and after optimization
 
-The optimization reduces model size by 50-55% and improves latency by 4-5%, providing significant performance benefits without specialized hardware.
+The optimization reduces model size by 53.25% and improves latency by 72.52%, providing significant performance benefits without specialized hardware.
 
 ## Prerequisites
 
@@ -89,8 +89,8 @@ pipe = pipeline("text-generation", model=ov_model, tokenizer=ov_tokenizer, devic
 ## Performance Benefits
 
 The optimization provides:
-- 50-55% reduction in model size
-- 4-5% improvement in inference latency
+- 53.25% reduction in model size
+- 72.52% improvement in inference latency
 - Similar output quality to the original model
 
 ## Troubleshooting

@@ -241,6 +241,6 @@ with open("audio.wav", "rb") as f:
 The project includes Intel OpenVINO optimization for enhanced performance:
 
 ### Benefits
-- **50-55% reduction** in model size
-- **4-5% improvement** in inference latency
+- **53.25% reduction** in model size
+- **72.52% improvement** in inference latency
 - **CPU-optimized** inference without specialized hardware
