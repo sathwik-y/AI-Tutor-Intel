@@ -368,7 +368,7 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
               <p className="text-xl text-gray-300">Your personal AI tutor is here to help you learn</p>
             </div>
 
-            <div className="bg-gray-800 p-6 rounded-lg">
+            <div className="bg-gray-800 p-6 rounded-3xl">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-semibold text-white">🔊 Audio Settings</h3>
                 <div className="flex items-center gap-4">
@@ -399,13 +399,13 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
             </div>
 
             {/* Voice Assistant */}
-            <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 rounded-lg">
+            <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 rounded-3xl">
               <h3 className="text-2xl font-semibold text-white mb-4">🎤 Voice Assistant</h3>
               <div className="flex gap-4 mb-4">
                 <button
                   onClick={startRecording}
                   disabled={isRecording}
-                  className={`px-8 py-4 rounded-lg transition-all duration-300 flex items-center gap-3 text-lg font-semibold ${
+                  className={`px-8 py-4 rounded-3xl transition-all duration-300 flex items-center gap-3 text-lg font-semibold ${
                     isRecording 
                       ? 'bg-red-500 animate-pulse shadow-lg shadow-red-500/50' 
                       : 'bg-white text-blue-600 hover:bg-gray-100 hover:scale-105'
@@ -417,7 +417,7 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
                 <button
                   onClick={stopRecording}
                   disabled={!isRecording}
-                  className="bg-gray-800 hover:bg-gray-700 disabled:bg-gray-600 text-white px-6 py-4 rounded-lg transition-colors flex items-center gap-2"
+                  className="bg-gray-800 hover:bg-gray-700 disabled:bg-gray-600 text-white px-6 py-4 rounded-3xl transition-colors flex items-center gap-2"
                 >
                   <Square className="w-5 h-5" />
                   Stop
@@ -429,7 +429,7 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
               </div>
               
               <div className="grid md:grid-cols-2 gap-4">
-                <div className="bg-white/10 p-4 rounded-lg backdrop-blur">
+                <div className="bg-white/10 p-4 rounded-3xl backdrop-blur">
                   <h4 className="text-white font-semibold mb-2 flex items-center gap-2">
                     <Mic className="w-4 h-4" />
                     Your Question:
@@ -439,7 +439,7 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
                   </div>
                 </div>
                 
-                <div className="bg-white/10 p-4 rounded-lg backdrop-blur">
+                <div className="bg-white/10 p-4 rounded-3xl backdrop-blur">
                   <h4 className="text-white font-semibold mb-2">🤖 SAGE's Answer:</h4>
                   <div className="text-white/90 min-h-[80px] p-2 bg-black/20 rounded" dangerouslySetInnerHTML={formatExamContent(llmResponse)}>
                   </div>
@@ -448,7 +448,7 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
             </div>
 
             {/* Text Query */}
-            <div className="bg-gray-800 p-6 rounded-lg">
+            <div className="bg-gray-800 p-6 rounded-3xl">
               <h3 className="text-xl font-semibold text-white mb-4">💬 Type Your Question</h3>
               <div className="flex gap-4">
                 <textarea 
@@ -466,7 +466,7 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
                 />
                 <button 
                   onClick={submitTextQuery}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors flex items-center gap-2 self-start"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-3xl transition-colors flex items-center gap-2 self-start"
                 >
                   <Send className="w-4 h-4" />
                   Ask
@@ -483,10 +483,10 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
             </div>
 
             {/* Image Analysis */}
-            <div className="bg-gray-800 p-6 rounded-lg">
+            <div className="bg-gray-800 p-6 rounded-3xl">
               <h3 className="text-xl font-semibold text-white mb-4">📸 Image Analysis</h3>
               <div className="space-y-4">
-                <div className="border-2 border-dashed border-gray-600 p-6 rounded-lg text-center">
+                <div className="border-2 border-dashed border-gray-600 p-6 rounded-3xl text-center">
                   <ImageIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                   <input 
                     id="imageFile"
@@ -505,7 +505,7 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
                 />
                 <button 
                   onClick={analyzeImage}
-                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg transition-colors flex items-center gap-2"
+                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-3xl transition-colors flex items-center gap-2"
                 >
                   <ImageIcon className="w-4 h-4" />
                   Analyze Image
@@ -528,7 +528,7 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
             <h2 className="text-3xl font-bold text-white mb-6">📚 Knowledge Base</h2>
             
             {/* Search Knowledge Base */}
-            <div className="bg-gray-800 p-6 rounded-lg">
+            <div className="bg-gray-800 p-6 rounded-3xl">
               <h3 className="text-xl font-semibold text-white mb-4">🔍 Search Knowledge Base</h3>
               <div className="flex gap-4">
                 <input 
@@ -536,14 +536,14 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
                   placeholder="Search topics, subjects, or concepts..."
                   className="flex-1 p-4 bg-gray-700 text-white rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
                 />
-                <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-4 rounded-lg transition-colors flex items-center gap-2">
+                <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-4 rounded-3xl transition-colors flex items-center gap-2">
                   <Search className="w-4 h-4" />
                   Search
                 </button>
               </div>
             </div>
 
-            <div className="bg-gray-800 p-6 rounded-lg">
+            <div className="bg-gray-800 p-6 rounded-3xl">
               <h3 className="text-xl font-semibold text-white mb-4">📂 Browse by Category</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {[
@@ -554,7 +554,7 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
                   { name: "Computer Science", count: "0 docs", color: "bg-orange-600" },
                   { name: "Languages", count: "0 docs", color: "bg-pink-600" }
                 ].map((category, index) => (
-                  <div key={index} className={`${category.color} p-4 rounded-lg text-white cursor-pointer hover:opacity-80 transition-opacity`}>
+                  <div key={index} className={`${category.color} p-4 rounded-3xl text-white cursor-pointer hover:opacity-80 transition-opacity`}>
                     <h4 className="font-semibold">{category.name}</h4>
                     <p className="text-sm opacity-80">{category.count}</p>
                   </div>
@@ -563,11 +563,11 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
             </div>
 
            
-            <div className="bg-gray-800 p-6 rounded-lg">
+            <div className="bg-gray-800 p-6 rounded-3xl">
               <h3 className="text-xl font-semibold text-white mb-4">📄 Recent Documents</h3>
               <button 
                 onClick={loadIndexedPdfs}
-                className="mb-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
+                className="mb-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-3xl transition-colors"
               >
                 🔄 Refresh Document List
               </button>
@@ -578,7 +578,7 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
               ) : (
                 <div className="space-y-2">
                   {indexedPdfs.map((pdfName, index) => (
-                    <div key={index} className="bg-gray-700 p-3 rounded-lg flex items-center justify-between">
+                    <div key={index} className="bg-gray-700 p-3 rounded-3xl flex items-center justify-between">
                       <span className="text-white">{pdfName}</span>
                       <BookOpen className="w-5 h-5 text-blue-400" />
                     </div>
@@ -596,22 +596,22 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
             
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-blue-600 p-6 rounded-lg text-center">
+              <div className="bg-blue-600 p-6 rounded-3xl text-center">
                 <p className="text-3xl font-bold text-white">{learningHistory.filter(h => h.type === 'voice').length}</p>
                 <p className="text-blue-200">Voice Queries</p>
               </div>
-              <div className="bg-green-600 p-6 rounded-lg text-center">
+              <div className="bg-green-600 p-6 rounded-3xl text-center">
                 <p className="text-3xl font-bold text-white">{learningHistory.filter(h => h.type === 'text').length}</p>
                 <p className="text-green-200">Text Queries</p>
               </div>
-              <div className="bg-purple-600 p-6 rounded-lg text-center">
+              <div className="bg-purple-600 p-6 rounded-3xl text-center">
                 <p className="text-3xl font-bold text-white">{learningHistory.filter(h => h.type === 'image').length}</p>
                 <p className="text-purple-200">Image Analysis</p>
               </div>
             </div>
 
             
-            <div className="bg-gray-800 p-6 rounded-lg">
+            <div className="bg-gray-800 p-6 rounded-3xl">
               <h3 className="text-xl font-semibold text-white mb-4">Recent Learning Sessions</h3>
               
               {learningHistory.length === 0 ? (
@@ -621,7 +621,7 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
               ) : (
                 <div className="space-y-4 max-h-96 overflow-y-auto">
                   {learningHistory.map((entry) => (
-                    <div key={entry.id} className="bg-gray-700 p-4 rounded-lg">
+                    <div key={entry.id} className="bg-gray-700 p-4 rounded-3xl">
                       <div className="flex items-center gap-2 mb-2">
                         {entry.type === 'voice' && <Mic className="w-4 h-4 text-blue-400" />}
                         {entry.type === 'text' && <Send className="w-4 h-4 text-green-400" />}
@@ -644,9 +644,9 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
             <h2 className="text-3xl font-bold text-white mb-6">🤝 Contribute to Learning</h2>
             
             
-            <div className="bg-gray-800 p-6 rounded-lg">
+            <div className="bg-gray-800 p-6 rounded-3xl">
               <h3 className="text-xl font-semibold text-white mb-4">📤 Share Knowledge</h3>
-              <div className="border-2 border-dashed border-gray-600 p-8 rounded-lg text-center">
+              <div className="border-2 border-dashed border-gray-600 p-8 rounded-3xl text-center">
                 <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                 <input 
                   id="contributionFile"
@@ -659,7 +659,7 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
                 </p>
                 <button 
                   onClick={uploadContribution}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-3xl transition-colors"
                 >
                   📤 Upload PDF to Knowledge Base
                 </button>
@@ -672,20 +672,20 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
             </div>
 
             
-            <div className="bg-gray-800 p-6 rounded-lg">
+            <div className="bg-gray-800 p-6 rounded-3xl">
               <h3 className="text-xl font-semibold text-white mb-4">💬 Feedback & Suggestions</h3>
               <textarea 
                 placeholder="Share your feedback about SAGE or suggest improvements..."
                 rows="4"
                 className="w-full p-4 bg-gray-700 text-white rounded border border-gray-600 resize-none focus:border-blue-500 focus:outline-none"
               />
-              <button className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors">
+              <button className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-3xl transition-colors">
                 📤 Send Feedback
               </button>
             </div>
 
             
-            <div className="bg-gray-800 p-6 rounded-lg">
+            <div className="bg-gray-800 p-6 rounded-3xl">
               <h3 className="text-xl font-semibold text-white mb-4">👥 Study Groups</h3>
               <div className="text-gray-400 text-center py-8">
                 Study group features coming soon! Connect with classmates and learn together.
@@ -706,7 +706,6 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
           <h1 className="text-2xl font-bold text-white">SAGE Student</h1>
           <p className="text-gray-400 text-sm">Smart AI Learning Portal</p>
         </div>
-        
         <nav className="mt-8">
           {navItems.map((item) => {
             const Icon = item.icon
@@ -725,7 +724,6 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
               </button>
             )
           })}
-          
           <button
             onClick={onLogout}
             className="w-full flex items-center gap-3 px-6 py-3 text-left text-gray-400 hover:text-white hover:bg-gray-700 transition-colors mt-8"
@@ -735,7 +733,6 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
           </button>
         </nav>
       </div>
-
       <div className="flex-1 overflow-y-auto">
         <div className="p-8">
           {renderTabContent()}

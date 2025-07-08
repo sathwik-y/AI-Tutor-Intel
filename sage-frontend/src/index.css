@@ -13,3 +13,243 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* Custom button styles for camera button */
+.camera-button {
+  font-family: inherit;
+  font-size: 16px;
+  background: #212121;
+  color: white;
+  fill: rgb(155, 153, 153);
+  padding: 0.7em 1em;
+  padding-left: 0.9em;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  border: none;
+  border-radius: 15px;
+  font-weight: 1000;
+  transition: all 0.3s ease-in-out;
+}
+
+.camera-button span {
+  display: block;
+  margin-left: 0.3em;
+  transition: all 0.3s ease-in-out;
+}
+
+.camera-button svg {
+  display: block;
+  transform-origin: center center;
+  transition: transform 0.3s ease-in-out;
+}
+
+.camera-button:hover {
+  background: #000;
+}
+
+.camera-button:hover .svg-wrapper {
+  transform: scale(1.25);
+  transition: 0.5s linear;
+}
+
+.camera-button:hover svg {
+  transform: translateX(1.2em) scale(1.1);
+  fill: #fff;
+}
+
+.camera-button:hover span {
+  opacity: 0;
+  transition: 0.5s linear;
+}
+
+.camera-button:active {
+  transform: scale(0.95);
+}
+
+.camera-button:disabled {
+  background: #666;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.camera-button:disabled:hover {
+  background: #666;
+}
+
+.camera-button:disabled:hover .svg-wrapper {
+  transform: none;
+}
+
+.camera-button:disabled:hover svg {
+  transform: none;
+  fill: rgb(155, 153, 153);
+}
+
+.camera-button:disabled:hover span {
+  opacity: 1;
+}
+
+/* Custom button styles for stop camera button */
+.stop-camera-button {
+  font-family: inherit;
+  font-size: 16px;
+  background: #dc2626;
+  color: white;
+  fill: rgb(155, 153, 153);
+  padding: 0.7em 1em;
+  padding-left: 0.9em;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  border: none;
+  border-radius: 15px;
+  font-weight: 1000;
+  transition: all 0.3s ease-in-out;
+}
+
+.stop-camera-button span {
+  display: block;
+  margin-left: 0.3em;
+  transition: all 0.3s ease-in-out;
+}
+
+.stop-camera-button svg {
+  display: block;
+  transform-origin: center center;
+  transition: transform 0.3s ease-in-out;
+}
+
+.stop-camera-button:hover {
+  background: #b91c1c;
+}
+
+.stop-camera-button:hover .svg-wrapper {
+  transform: scale(1.25);
+  transition: 0.5s linear;
+}
+
+.stop-camera-button:hover svg {
+  transform: translateX(1.2em) scale(1.1);
+  fill: #fff;
+}
+
+.stop-camera-button:hover span {
+  opacity: 0;
+  transition: 0.5s linear;
+}
+
+.stop-camera-button:active {
+  transform: scale(0.95);
+}
+
+.stop-camera-button:disabled {
+  background: #666;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.stop-camera-button:disabled:hover {
+  background: #666;
+}
+
+.stop-camera-button:disabled:hover .svg-wrapper {
+  transform: none;
+}
+
+.stop-camera-button:disabled:hover svg {
+  transform: none;
+  fill: rgb(155, 153, 153);
+}
+
+.stop-camera-button:disabled:hover span {
+  opacity: 1;
+}
+
+/* Animated upload input styles */
+.input-div {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 2px solid rgb(1, 235, 252);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  box-shadow: 0px 0px 100px rgb(1, 235, 252) , inset 0px 0px 10px rgb(1, 235, 252),0px 0px 5px rgb(255, 255, 255);
+  animation: flicker 2s linear infinite;
+}
+
+.upload-icon {
+  color: rgb(1, 235, 252);
+  font-size: 2rem;
+  cursor: pointer;
+  animation: iconflicker 2s linear infinite;
+}
+
+.upload-input {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer !important;
+}
+
+@keyframes flicker {
+  0% {
+    border: 2px solid rgb(1, 235, 252);
+    box-shadow: 0px 0px 100px rgb(1, 235, 252) , inset 0px 0px 10px rgb(1, 235, 252),0px 0px 5px rgb(255, 255, 255);
+  }
+
+  5% {
+    border: none;
+    box-shadow: none;
+  }
+
+  10% {
+    border: 2px solid rgb(1, 235, 252);
+    box-shadow: 0px 0px 100px rgb(1, 235, 252) , inset 0px 0px 10px rgb(1, 235, 252),0px 0px 5px rgb(255, 255, 255);
+  }
+
+  25% {
+    border: none;
+    box-shadow: none;
+  }
+
+  30% {
+    border: 2px solid rgb(1, 235, 252);
+    box-shadow: 0px 0px 100px rgb(1, 235, 252) , inset 0px 0px 10px rgb(1, 235, 252),0px 0px 5px rgb(255, 255, 255);
+  }
+
+  100% {
+    border: 2px solid rgb(1, 235, 252);
+    box-shadow: 0px 0px 100px rgb(1, 235, 252) , inset 0px 0px 10px rgb(1, 235, 252),0px 0px 5px rgb(255, 255, 255);
+  }
+}
+
+@keyframes iconflicker {
+  0% {
+    opacity: 1;
+  }
+
+  5% {
+    opacity: 0.2;
+  }
+
+  10% {
+    opacity: 1;
+  }
+
+  25% {
+    opacity: 0.2;
+  }
+
+  30% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
