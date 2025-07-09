@@ -3,9 +3,11 @@
   <img src="https://contrib.rocks/image?repo=sathwik-y/AI-Tutor-Intel" />
 </a>
 
-
 # Sage - Smart AI Guided for Education 🚀
 As part of our Intel Unnati Training Program we built a comprehensive AI-powered tutoring system that combines modern web technologies with optimized machine learning models for an enhanced learning experience like never before. 
+
+### Project Report
+Access the project Report at: https://drive.google.com/file/d/1m54YkSeZK0ftpgDwSPCC2gph_0kxQ3dS/view?usp=sharing
 
 ## 🎯 Overview
 
