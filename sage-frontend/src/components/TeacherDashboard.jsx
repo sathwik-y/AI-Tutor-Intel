@@ -22,6 +22,8 @@ import {
 } from "lucide-react"
 import FileUpload from "./ui/FileUpload";
 import AnimatedIconButton from "./ui/AnimatedIconButton";
+import AnimatedInput from "./ui/AnimatedInput";
+import InteractiveGridPattern from "./ui/InteractiveGridPattern";
 
 export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
   const [activeTab, setActiveTab] = useState("overview")
@@ -742,13 +744,13 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
             {/* Text Query */}
             <div className="bg-gray-800 p-6 rounded-3xl glass-card">
               <h3 className="text-xl font-semibold text-white mb-4">Text Query</h3>
-              <div className="flex gap-4">
-                <textarea 
+              <div className="flex gap-4 w-full">
+                <AnimatedInput
                   value={textQuery}
                   onChange={(e) => setTextQuery(e.target.value)}
                   placeholder="Ask SAGE anything about the course material..."
-                  rows="3"
-                  className="flex-1 p-4 bg-gray-700 text-black rounded border border-gray-600 resize-none focus:border-purple-500 focus:outline-none input"
+                  rows={4}
+                  className="flex-1 w-full"
                   onKeyPress={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault()
@@ -791,13 +793,13 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
                 buttonText="Analyze"
                 status={imageResponse}
               />
-              <div className="flex gap-4 mt-4">
-                <textarea
+              <div className="flex gap-4 mt-4 w-full">
+                <AnimatedInput
                   value={imageQuery}
                   onChange={(e) => setImageQuery(e.target.value)}
                   placeholder="What would you like to know about this image?"
-                  rows="3"
-                  className="flex-1 p-4 bg-gray-700 text-black rounded border border-gray-600 resize-none focus:border-purple-500 focus:outline-none input"
+                  rows={2}
+                  className="flex-1 w-full"
                 />
               </div>
             </div>
@@ -1052,6 +1054,13 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
 
   return (
     <div className="min-h-screen dashboard-bg flex">
+      <InteractiveGridPattern
+        width={50}
+        height={50}
+        squares={[32, 18]}
+        className="opacity-50"
+        squaresClassName="stroke-gray-500/20 hover:fill-purple-400/20"
+      />
       <div className="w-64 bg-gray-800 border-r border-gray-700 sidebar-glass">
         <div className="p-6">
           <h1 className="text-2xl font-bold text-white">SAGE Teacher</h1>

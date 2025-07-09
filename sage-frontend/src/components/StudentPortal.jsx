@@ -19,6 +19,8 @@ import {
   VolumeX
 } from "lucide-react"
 import FileUpload from "./ui/FileUpload";
+import AnimatedInput from "./ui/AnimatedInput";
+import InteractiveGridPattern from "./ui/InteractiveGridPattern";
 
 export function StudentPortal({ onLogout, userRole = "student" }) {
   const [activeTab, setActiveTab] = useState("assistant")
@@ -490,13 +492,13 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
             {/* Text Query */}
             <div className="bg-gray-800 p-6 rounded-3xl glass-card">
               <h3 className="text-xl font-semibold text-white mb-4">Type Your Question</h3>
-              <div className="flex gap-4">
-                <textarea 
+              <div className="flex gap-4 w-full">
+                <AnimatedInput
                   value={textQuery}
                   onChange={(e) => setTextQuery(e.target.value)}
                   placeholder="Type your question here... (e.g., 'Explain photosynthesis', 'What is calculus?')"
-                  rows="3"
-                  className="flex-1 p-4 bg-gray-700 rounded border border-gray-600 resize-none focus:border-blue-500 focus:outline-none input text-black"
+                  rows={4}
+                  className="flex-1 w-full"
                   onKeyPress={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault()
@@ -541,12 +543,14 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
                   buttonText="Analyze"
                   status={imageResponse}
                 />
-                <textarea
+              </div>
+              <div className="flex gap-4 mt-4 w-full">
+                <AnimatedInput
                   value={imageQuery}
                   onChange={(e) => setImageQuery(e.target.value)}
                   placeholder="What would you like to know about this image?"
-                  rows="2"
-                  className="w-full p-3 bg-gray-700 rounded border border-gray-600 resize-none focus:border-green-500 focus:outline-none mt-4 input text-black"
+                  rows={2}
+                  className="flex-1 w-full"
                 />
               </div>
             </div>
@@ -562,10 +566,11 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
             <div className="bg-gray-800 p-6 rounded-3xl glass-card">
               <h3 className="text-xl font-semibold text-white mb-4">Search Knowledge Base</h3>
               <div className="flex gap-4">
-                <input 
+                <AnimatedInput
                   type="text"
                   placeholder="Search topics, subjects, or concepts..."
-                  className="flex-1 p-4 bg-gray-700 rounded border border-gray-600 focus:border-blue-500 focus:outline-none input text-black"
+                  className="flex-1"
+                  isTextarea={false}
                 />
                 <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-4 rounded-3xl transition-colors flex items-center gap-2">
                   <Search className="w-4 h-4" />
@@ -703,10 +708,10 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
             
             <div className="bg-gray-800 p-6 rounded-3xl glass-card">
               <h3 className="text-xl font-semibold text-white mb-4">Feedback & Suggestions</h3>
-              <textarea 
+              <AnimatedInput
                 placeholder="Share your feedback about SAGE or suggest improvements..."
-                rows="4"
-                className="w-full p-4 bg-gray-700 rounded border border-gray-600 resize-none focus:border-blue-500 focus:outline-none input text-black"
+                rows={4}
+                className="w-full"
               />
               <button className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-3xl transition-colors">
                 Send Feedback
@@ -729,6 +734,13 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
   
   return (
     <div className="min-h-screen dashboard-bg flex">
+      <InteractiveGridPattern
+        width={50}
+        height={50}
+        squares={[32, 18]}
+        className="opacity-50"
+        squaresClassName="stroke-gray-500/20 hover:fill-cyan-400/20"
+      />
       {/* Sidebar */}
       <div className="w-64 bg-gray-800 border-r border-gray-700 sidebar-glass">
         <div className="p-6">
