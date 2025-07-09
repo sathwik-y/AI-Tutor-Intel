@@ -79,7 +79,7 @@ def get_relevant_context(query: str, k: int = 3) -> str:
     print(f"Top {k} scores: {D[0]}")
     
     # Filter results by relevance score threshold
-    score_threshold = 1.5  # Adjust based on your data
+    score_threshold = 5.0  # Increased threshold to be more lenient
     results = []
     
     for i, (idx, score) in enumerate(zip(I[0], D[0])):
