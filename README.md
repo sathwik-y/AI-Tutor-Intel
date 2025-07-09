@@ -6,10 +6,11 @@
 # Sage - Smart AI Guided for Education 🚀
 As part of our Intel Unnati Training Program we built a comprehensive AI-powered tutoring system that combines modern web technologies with optimized machine learning models for an enhanced learning experience like never before. 
 
-### Project Report
+### Project Report 
 Access the project Report at: https://drive.google.com/file/d/1m54YkSeZK0ftpgDwSPCC2gph_0kxQ3dS/view?usp=sharing 
 Can also be accessed from the PDF pushed in the root folder.
-
+### 
+Project Demo: https://drive.google.com/file/d/1FrbZW1xjyyt4xpzJavFZ2tZgrUFx_PMq/view?usp=sharing
 ## 🎯 Overview
 
 Sage is a full-stack intelligent tutoring system that leverages cutting-edge AI technologies to provide personalized learning experiences. The project consists of three main components:
