@@ -14,7 +14,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Custom button styles for camera button */
 .camera-button {
   font-family: inherit;
   font-size: 16px;
@@ -90,7 +89,6 @@ body {
   opacity: 1;
 }
 
-/* Custom button styles for stop camera button */
 .stop-camera-button {
   font-family: inherit;
   font-size: 16px;
@@ -166,7 +164,6 @@ body {
   opacity: 1;
 }
 
-/* Animated upload input styles */
 .input-div {
   position: relative;
   width: 100px;
@@ -305,23 +302,8 @@ body {
   transform: scale(0.95);
 }
 
-.input {
-  border: none;
-  outline: none;
-  border-radius: 15px;
-  padding: 1em;
-  background-color: #ccc;
-  box-shadow: inset 2px 5px 10px rgba(0,0,0,0.3);
-  transition: 300ms ease-in-out;
-}
-.input:focus {
-  background-color: white;
-  transform: scale(1.05);
-  box-shadow: 13px 13px 100px #969696,
-             -13px -13px 100px #ffffff;
-}
 
-/* AnimatedInput shadow effects */
+
 .shadow-input {
   box-shadow:
     0px 2px 3px -1px rgba(0, 0, 0, 0.1),
@@ -701,13 +683,11 @@ body {
   opacity: 0;
 }
 
-/* Hover Effects */
 .neon-checkbox:hover .neon-checkbox__box {
   border-color: var(--primary);
   transform: scale(1.05);
 }
 
-/* Checked State */
 .neon-checkbox input:checked ~ .neon-checkbox__frame .neon-checkbox__box {
   border-color: var(--primary);
   background: rgba(0, 255, 170, 0.1);
@@ -730,7 +710,6 @@ body {
   opacity: 1;
 }
 
-/* Particle Animations */
 .neon-checkbox
   input:checked
   ~ .neon-checkbox__frame
@@ -755,7 +734,6 @@ body {
   animation: sparkFlash 0.6s ease-out forwards;
 }
 
-/* Animations */
 @keyframes borderFlow1 {
   0% {
     transform: translateX(0);
@@ -832,7 +810,6 @@ body {
   }
 }
 
-/* Particle Positions */
 .neon-checkbox__particles span:nth-child(1) {
   --x: 25px;
   --y: -25px;
@@ -882,7 +859,6 @@ body {
   --y: -20px;
 }
 
-/* Spark Rotations */
 .neon-checkbox__sparks span:nth-child(1) {
   --r: 0deg;
   top: 50%;
@@ -904,7 +880,6 @@ body {
   left: 50%;
 }
 
-/* Ring Delays */
 .neon-checkbox__rings .ring:nth-child(1) {
   animation-delay: 0s;
 }

@@ -52,9 +52,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
   const [textResponse, setTextResponse] = useState("")
   const [conversationHistory, setConversationHistory] = useState([]);
 
-  // Session-only memory - no localStorage persistence
   useEffect(() => {
-    // Clear any existing localStorage on component mount
     if (typeof window !== 'undefined') {
       localStorage.removeItem('chatHistory');
     }
@@ -258,7 +256,6 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
       speakText(data.answer)
       setConversationHistory(prev => {
         const newHistory = [...prev, { role: 'user', content: textQuery }, { role: 'assistant', content: data.answer }];
-        // Keep only last 15 conversation turns (30 messages total)
         return newHistory.slice(-30);
       });
       loadUsageStats()
@@ -453,7 +450,6 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
     }
   }, [])
 
-  // State for interactive sparkle buttons
   const [hoveredBtn, setHoveredBtn] = useState(null);
 
   const renderTabContent = () => {
@@ -490,7 +486,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
               </div>
             </div>
 
-            {/* Quick Actions */}
+
             <div className="bg-gray-800 p-6 rounded-3xl glass-card">
               <h3 className="text-xl font-semibold text-white mb-4">Quick Actions</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -499,7 +495,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
                   className="sparkle-button text-white flex items-center gap-2"
                   style={{
                     '--active': hoveredBtn === 'attendance' ? 1 : 0,
-                    background: hoveredBtn === 'attendance' ? undefined : '#22c55e', // vibrant green
+                    background: hoveredBtn === 'attendance' ? undefined : '#22c55e',
                   }}
                   onMouseEnter={() => setHoveredBtn('attendance')}
                   onMouseLeave={() => setHoveredBtn(null)}
@@ -514,7 +510,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
                   className="sparkle-button text-white flex items-center gap-2"
                   style={{
                     '--active': hoveredBtn === 'assistant' ? 1 : 0,
-                    background: hoveredBtn === 'assistant' ? undefined : '#2563eb', // vibrant blue
+                    background: hoveredBtn === 'assistant' ? undefined : '#2563eb',
                   }}
                   onMouseEnter={() => setHoveredBtn('assistant')}
                   onMouseLeave={() => setHoveredBtn(null)}
@@ -529,7 +525,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
                   className="sparkle-button text-white flex items-center gap-2"
                   style={{
                     '--active': hoveredBtn === 'knowledge' ? 1 : 0,
-                    background: hoveredBtn === 'knowledge' ? undefined : '#ef4444', // vibrant red
+                    background: hoveredBtn === 'knowledge' ? undefined : '#ef4444',
                   }}
                   onMouseEnter={() => setHoveredBtn('knowledge')}
                   onMouseLeave={() => setHoveredBtn(null)}
@@ -549,7 +545,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
           <div className="space-y-6">
             <h2 className="text-3xl font-bold text-white mb-6">Live Head Count Tracking</h2>
             
-            {/* Camera Controls */}
+
             <div className="bg-gray-800 p-6 rounded-3xl glass-card">
               <h3 className="text-xl font-semibold text-white mb-4">Live Camera</h3>
               <div className="flex gap-4 mb-6">
@@ -631,13 +627,13 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
               </div>
             </div>
 
-            {/* File Upload */}
+
             <div className="bg-gray-800 p-6 rounded-3xl glass-card">
               <h3 className="text-xl font-semibold text-white mb-4">Upload Image for Attendance</h3>
               <FileUpload
                 id="teacherAttendanceImageFile"
                 accept="image/*"
-                onUpload={() => {/* TODO: implement attendance image upload handler */}}
+                onUpload={() => {}}
                 buttonText="📊 Count Students from the Image"
               />
             </div>
@@ -649,7 +645,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
           <div className="space-y-6">
             <h2 className="text-3xl font-bold text-white mb-6">AI Class Assistant</h2>
             
-            {/* Audio Settings */}
+
             <div className="bg-gray-800 p-6 rounded-3xl glass-card">
               <h3 className="text-xl font-semibold text-white mb-4">Audio Settings</h3>
               <div className="flex items-center gap-4 mb-4">
@@ -701,7 +697,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
               </div>
             </div>
 
-            {/* Voice Assistant */}
+
             <div className="bg-gray-800 p-6 rounded-3xl glass-card">
               <h3 className="text-xl font-semibold text-white mb-4">Voice Assistant</h3>
               <div className="flex gap-4 mb-4">
@@ -741,7 +737,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
               </div>
             </div>
 
-            {/* Text Query */}
+
             <div className="bg-gray-800 p-6 rounded-3xl glass-card">
               <h3 className="text-xl font-semibold text-white mb-4">Text Query</h3>
               <div className="flex gap-4 w-full">
@@ -783,7 +779,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
               )}
             </div>
 
-            {/* Image Analysis */}
+
             <div className="bg-gray-800 p-6 rounded-3xl glass-card">
               <h3 className="text-xl font-semibold text-white mb-4">Image Analysis</h3>
               <FileUpload
@@ -822,7 +818,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
               />
             </div>
 
-            {/* Knowledge Base Stats */}
+
             <div className="bg-gray-800 p-6 rounded-3xl glass-card">
               <h3 className="text-xl font-semibold text-white mb-4">Knowledge Base Statistics</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -864,7 +860,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
           <div className="space-y-6">
             <h2 className="text-3xl font-bold text-white mb-6">Analytics & Reports</h2>
             
-            {/* Attendance Analytics */}
+
             <div className="bg-gray-800 p-6 rounded-3xl glass-card">
               <h3 className="text-xl font-semibold text-white mb-4">Attendance Analytics</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -894,7 +890,7 @@ export function TeacherDashboard({ onLogout, userRole = "teacher" }) {
               </button>
             </div>
 
-            {/* Usage Analytics */}
+
             <div className="bg-gray-800 p-6 rounded-3xl glass-card">
               <h3 className="text-xl font-semibold text-white mb-4">Usage Analytics</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

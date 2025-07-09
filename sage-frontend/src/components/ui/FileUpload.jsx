@@ -1,18 +1,6 @@
 import React, { useState } from "react";
 import { Upload } from "lucide-react";
 
-/**
- * FileUpload reusable component
- * Props:
- * - id: string (input id)
- * - accept: string (accepted file types)
- * - onUpload: function (called when upload button is clicked)
- * - buttonText: string (button label)
- * - status: string (status message)
- * - helpText: string (optional help/placeholder text)
- * - className: string (optional extra classes)
- * - onFileSelect: function (optional callback for selecting a file)
- */
 export default function FileUpload({
   id,
   accept,

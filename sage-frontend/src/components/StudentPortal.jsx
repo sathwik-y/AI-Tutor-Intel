@@ -38,9 +38,7 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
   const [indexedPdfs, setIndexedPdfs] = useState([])
   const [conversationHistory, setConversationHistory] = useState([]);
 
-  // Session-only memory - no localStorage persistence
   useEffect(() => {
-    // Clear any existing localStorage on component mount
     if (typeof window !== 'undefined') {
       localStorage.removeItem('studentChatHistory');
     }
@@ -263,7 +261,6 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
       addToHistory('text', data.answer, textQuery)
       setConversationHistory(prev => {
         const newHistory = [...prev, { role: 'user', content: textQuery }, { role: 'assistant', content: data.answer }];
-        // Keep only last 15 conversation turns (30 messages total)
         return newHistory.slice(-30);
       });
       
@@ -316,7 +313,7 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
       timestamp: new Date().toLocaleString()
     }
     
-    setLearningHistory(prev => [newEntry, ...prev.slice(0, 49)]) // Keep last 50 entries
+    setLearningHistory(prev => [newEntry, ...prev.slice(0, 49)])
   }
 
   const uploadContribution = async () => {
@@ -349,7 +346,6 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
     loadIndexedPdfs()
 
     return () => {
-      // Cleanup audio on unmount
       if (currentAudioRef.current) {
         currentAudioRef.current.pause()
         currentAudioRef.current = null
@@ -368,7 +364,6 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
     }
   }
 
-  // State for interactive sparkle category cards
   const [hoveredCategory, setHoveredCategory] = useState(null);
 
   const renderTabContent = () => {
@@ -440,7 +435,7 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
               </div>
             </div>
 
-            {/* Voice Assistant */}
+
             <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 rounded-3xl glass-card">
               <h3 className="text-2xl font-semibold text-white mb-4">Voice Assistant</h3>
               <div className="flex gap-4 mb-4">
@@ -489,7 +484,7 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
               </div>
             </div>
 
-            {/* Text Query */}
+
             <div className="bg-gray-800 p-6 rounded-3xl glass-card">
               <h3 className="text-xl font-semibold text-white mb-4">Type Your Question</h3>
               <div className="flex gap-4 w-full">
@@ -532,7 +527,7 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
               )}
             </div>
 
-            {/* Image Analysis */}
+
             <div className="bg-gray-800 p-6 rounded-3xl glass-card">
               <h3 className="text-xl font-semibold text-white mb-4">Image Analysis</h3>
               <div className="flex flex-col items-center">
@@ -562,7 +557,7 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
           <div className="space-y-6">
             <h2 className="text-3xl font-bold text-white mb-6">Knowledge Base</h2>
             
-            {/* Search Knowledge Base */}
+
             <div className="bg-gray-800 p-6 rounded-3xl glass-card">
               <h3 className="text-xl font-semibold text-white mb-4">Search Knowledge Base</h3>
               <div className="flex gap-4">
@@ -741,7 +736,7 @@ export function StudentPortal({ onLogout, userRole = "student" }) {
         className="opacity-50"
         squaresClassName="stroke-gray-500/20 hover:fill-cyan-400/20"
       />
-      {/* Sidebar */}
+
       <div className="w-64 bg-gray-800 border-r border-gray-700 sidebar-glass">
         <div className="p-6">
           <h1 className="text-2xl font-bold text-white">SAGE Student</h1>
