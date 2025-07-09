@@ -7,7 +7,8 @@
 As part of our Intel Unnati Training Program we built a comprehensive AI-powered tutoring system that combines modern web technologies with optimized machine learning models for an enhanced learning experience like never before. 
 
 ### Project Report
-Access the project Report at: https://drive.google.com/file/d/1m54YkSeZK0ftpgDwSPCC2gph_0kxQ3dS/view?usp=sharing
+Access the project Report at: https://drive.google.com/file/d/1m54YkSeZK0ftpgDwSPCC2gph_0kxQ3dS/view?usp=sharing 
+Can also be accessed from the PDF pushed in the root folder.
 
 ## 🎯 Overview
 
